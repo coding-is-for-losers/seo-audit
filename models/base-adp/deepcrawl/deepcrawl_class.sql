@@ -96,7 +96,7 @@ case
 	when flag_learn_more = 1 then 'blog_category'
 	when class_sitemap is not null then class_sitemap
 	when article_score >= 1 then 'article'
-	else 'unclassified' end as classification
+	else 'unclassified' end as page_type
 FROM 
 (
 	SELECT 
