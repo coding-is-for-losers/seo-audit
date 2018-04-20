@@ -15,6 +15,12 @@ FROM
   first_value(crawl_datetime) OVER (PARTITION BY url ORDER BY crawl_datetime desc) last_crawl,
   found_at_sitemap,
   http_status_code,
+  case when url contains 'https' then 'https' 
+    when url contains 'http' then 'http'
+    else 'none' end as url_protocol,
+  case when canonical_url contains 'https' then 'https' 
+    when canonical_url contains 'http' then 'http'
+    else 'none' end as canonical_url_protocol,  
   level,
   lower(schema_type) schema_type,
   header_content_type,

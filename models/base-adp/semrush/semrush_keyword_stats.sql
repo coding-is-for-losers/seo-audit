@@ -6,14 +6,16 @@ daterange AS (
 ),
 temp AS (
   SELECT account, url, platform, date d, semrush_top_keyword_vol, semrush_top_keyword_cpc,
-  semrush_top_keyword_vol_vol, semrush_top_keyword_vol_cpc, semrush_top_keyword_cpc_vol, semrush_top_keyword_cpc_cpc,
+  semrush_top_keyword_vol_vol, semrush_top_keyword_vol_cpc, semrush_top_keyword_vol_pos, 
+  semrush_top_keyword_cpc_vol, semrush_top_keyword_cpc_cpc, semrush_top_keyword_cpc_pos,
   LEAD(date) OVER(PARTITION BY account, url, platform ORDER BY date) AS next_date
   FROM history
   ORDER BY account, platform, url, date
 )
 SELECT date_in_range, account, platform, url, 
 semrush_top_keyword_vol, semrush_top_keyword_cpc,
-semrush_top_keyword_vol_vol, semrush_top_keyword_vol_cpc, semrush_top_keyword_cpc_vol, semrush_top_keyword_cpc_cpc
+semrush_top_keyword_vol_vol, semrush_top_keyword_vol_cpc, semrush_top_keyword_vol_pos, 
+semrush_top_keyword_cpc_vol, semrush_top_keyword_cpc_cpc, semrush_top_keyword_cpc_pos
 FROM daterange
 JOIN temp
 ON daterange.date_in_range >= temp.d

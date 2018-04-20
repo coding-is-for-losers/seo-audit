@@ -24,6 +24,10 @@ case when trim(replace(url, last_path, ''),'/') = domain then domain
   when second_path is not null then concat(domain,'/',first_path,'/',second_path) 
   else '' end as second_subfolder,
 urls_to_canonical,
+url_protocol,
+canonical_url_protocol,
+case when url_protocol = canonical_url_protocol then 1 else 0 end as protocol_match,
+count(distinct(url_protocol)) over (partition by url) protocol_count,
 last_crawl,
 crawl_datetime,
 found_at_sitemap,
@@ -113,6 +117,8 @@ FROM
     when url_query_string_flag = 1 and url_stripped = canonical_url_stripped then 'self (url extra query string)'
     when canonical_url = '' or canonical_url is null then 'missing_canonical'
     else 'canonicalized' end as canonical_status,
+  url_protocol,
+  canonical_url_protocol,
   last_crawl,
   crawl_datetime,
   found_at_sitemap,

@@ -17,6 +17,9 @@ client,
 platform,
 domain,
 domain_canonical,
+case when url contains 'https' then 'https' 
+	when url contains 'http' then 'http'
+	else 'none' end as url_protocol,
 url,
 url_stripped,
 canonical_url,

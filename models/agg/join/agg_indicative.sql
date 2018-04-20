@@ -1,9 +1,14 @@
 SELECT 
 coalesce(dc.client, s.client) client,
 case when dc.canonical_url like '%?%' then coalesce(dc.url, s.url) else coalesce(dc.url_stripped, s.url) end as url,
+max(url_protocol) url_protocol,
+max(canonical_url_protocol) canonical_url_protocol,
+max(protocol_match) protocol_match,
+max(protocol_count) protocol_count,
 max(url_stripped) url_stripped,
 max(canonical_url) canonical_url,
 max(canonical_url_stripped) canonical_url_stripped,
+max(canonical_status) canonical_status,
 max(canonical_status) canonical_status,
 max(urls_to_canonical) urls_to_canonical,
 max(first_subfolder) first_subfolder,
@@ -50,7 +55,7 @@ max(duplicate_page_count) duplicate_page_count,
 max(duplicate_body) duplicate_body,
 max(duplicate_body_count) duplicate_body_count,
 max(flag_paginated) flag_paginated
-FROM {{ref('deepcrawl_reclass')}} dc
+FROM {{ref('deepcrawl_class')}} dc
 FULL OUTER JOIN {{ref('sitemap_proc')}} s
 on ( dc.url = s.url
   and dc.client = s.client )

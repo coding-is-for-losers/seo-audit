@@ -16,7 +16,7 @@ case
 	when canonical_action != '' then canonical_action
 	when traffic_redirect_action != '' then traffic_redirect_action
 	when category_action != '' then category_action
-	else '' end as admin_action,
+	else '' end as top_admin_action,
 
 case 
 	when anchored_url_action != '' then 'anchored url'
@@ -32,13 +32,25 @@ case
 	when traffic_redirect_action = 'noindex' then 'page receives pageviews but no organic traffic'
 	when traffic_redirect_action like '301 to:%' then 'page receives no pageviews, 301 to subfolder'
 	when category_action != '' then 'ranks below the top 10 blog category pages'
-	else '' end as admin_action_reason,
- 
+	else '' end as top_admin_action_reason,
+
+anchored_url_action,
+crawl_action,
+http_status_action,
+sitemap_action,
+canonical_action,
+traffic_redirect_action,
+category_action,
+concat(schema_itemavailability,' ', schema_product,' ', schema_aggregaterating,' ', schema_itemlistordertype,' ', schema_blogposting,' ', schema_blog,' ', schema_localbusiness,' ', schema_organization) schema_action,
 # analytics actions are separate from indicative actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 content_action,
 link_action,
 meta_rewrite_action,
 pagination_action,
+url_protocol,
+canonical_url_protocol,
+protocol_match,
+protocol_count,
 first_subfolder,
 first_subfolder_http_status,
 second_subfolder,
@@ -110,10 +122,13 @@ gsc_top_keyword_ctr_90d,
 semrush_keyword_count,
 semrush_total_cpc,
 semrush_total_search_volume,
+semrush_min_position,
 semrush_top_keyword_vol,
 semrush_top_keyword_vol_vol, 
 semrush_top_keyword_vol_cpc, 
+semrush_top_keyword_vol_pos,
 semrush_top_keyword_cpc,
 semrush_top_keyword_cpc_vol, 
-semrush_top_keyword_cpc_cpc	
+semrush_top_keyword_cpc_cpc,
+semrush_top_keyword_cpc_pos
 FROM {{ ref('actions_proc') }}

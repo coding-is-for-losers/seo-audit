@@ -35,15 +35,16 @@ case
 	else '' end as canonical_action,		
 
 case
+	when page_objective in ('revenue', 'sales') then ''
 	when first_subfolder_sessions_30d = 0 and first_subfolder_pageviews_30d > 0 and first_subfolder_http_status = '' then concat('block crawl to: ', first_subfolder)
 	when second_subfolder_sessions_30d = 0 and second_subfolder_pageviews_30d > 0 and second_subfolder_http_status = ''  then concat('block crawl to: ', second_subfolder)
 	when last_subfolder_sessions_30d = 0 and last_subfolder_pageviews_30d > 0 and last_subfolder_http_status = '' then concat('block crawl to: ', last_subfolder)
 	when sessions_30d = 0 and pageviews_30d > 0 then 'noindex'
-	when pageviews_30d = 0 and last_subfolder_pageviews_30d > 0 then concat('301 to: ', last_subfolder)
+	when  and pageviews_30d = 0 and last_subfolder_pageviews_30d > 0 then concat('301 to: ', last_subfolder)
 	when pageviews_30d = 0 and second_subfolder_pageviews_30d > 0 then concat('301 to: ', second_subfolder)
 	when pageviews_30d = 0 and first_subfolder_pageviews_30d > 0 then concat('301 to: ', first_subfolder)
 	when pageviews_30d = 0 and first_subfolder_pageviews_30d = 0 then concat('301 to: ', domain)
-	else '' end as traffic_redirect_action,	
+	else '' end as traffic_redirect_action,		
 
 # analytics actions are separate from indicative actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 
@@ -73,8 +74,23 @@ case when page_type = 'blog_category' and page_type_rank > 10 and a.url not like
 
 case when page_type like '%category%' and flag_paginated = 0 and url_contains_digit = 1 then 'needs pagination' else '' end as pagination_action,
 
+# push these schema classifications down into a lower proc model (and push other proc from deepcrawl up)
+case when page_type = 'product' and schema_type not like '%product%' then 'product' else '' end as schema_product,
+case when page_type = 'product' and schema_type not like '%itemavailability%' then 'itemavailability' else '' end as schema_itemavailability,
+case when page_type = 'product' and schema_type not like '%rating%' then 'aggregaterating' else '' end as schema_aggregaterating,
+case when page_type = 'product_category' and schema_type not like '%itemlistordertype%' then 'itemlistordertype' else '' end as schema_itemlistordertype,
+case when page_type = 'article' and schema_type not like '%blogposting%' then 'blogposting' else '' end as schema_blogposting,
+case when page_type = 'blog_category' and schema_type not like '%blog%' then 'blog' else '' end as schema_blog,
+case when page_type = 'local' and schema_type not like '%localbusiness%' then 'localbusiness' else '' end as schema_localbusiness,
+case when page_type = 'homepage' and schema_type not like '%organization%' then 'organization' else '' end as schema_organization,
+
+
 page_type_rank,
 url_stripped,
+url_protocol,
+canonical_url_protocol,
+protocol_match,
+protocol_count,
 canonical_url_stripped,
 canonical_status,
 urls_to_canonical,
@@ -169,12 +185,15 @@ a.gsc_top_keyword_ctr_90d,
 semrush_keyword_count,
 semrush_total_cpc,
 semrush_total_search_volume,
+semrush_min_position,
 semrush_top_keyword_vol,
 semrush_top_keyword_vol_vol, 
 semrush_top_keyword_vol_cpc, 
+semrush_top_keyword_vol_pos,
 semrush_top_keyword_cpc,
 semrush_top_keyword_cpc_vol, 
-semrush_top_keyword_cpc_cpc	
+semrush_top_keyword_cpc_cpc,
+semrush_top_keyword_cpc_pos		
 FROM {{ ref('agg_all') }} a
 LEFT JOIN {{ref('search_console_stats_keyword')}} b
 ON (
