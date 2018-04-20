@@ -1,0 +1,30 @@
+cesar call notes
+
+1. from his end
+
+// columns to remove
+
+
+
+// columns to add
+
+
+
+// data questions
+
+- can we add column 'secured' for url contains 'https'?
+	- make flag column for mismatch between protocol (http / https) of url and canonical url / redirect url
+	- are we locating a secured and an unsecured version of the page?
+
+- agg_all
+	- change flag_digit to be /number/ instead of just number
+
+- columns to remove (review relevance + https_status effectiveness - all blank)
+first_subfolder	first_subfolder_http_status	second_subfolder	second_subfolder_http_status	last_subfolder	last_subfolder_http_status
+
+- schema_type 
+	- add action to add schema if it doesn't have one
+
+- potentially change GA date ranges to more than 1 month (for seasonality)
+
+- add position data back in for semrush, leave it out for search console

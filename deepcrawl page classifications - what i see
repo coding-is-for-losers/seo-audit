@@ -1,0 +1,376 @@
+deepcrawl page classifications - what i see
+
+// deepcrawl changes
+- need tighter decimal price logic to not pull examples from code (any way for regex to keep it within text of page?)
+- find url linked to with 'blog' or 'resources' anchor text, apply that path / page stem as blog / resource pages
+- how do we identify pages like this as useless - count of linked_to internally? (	https://www.predatornutrition.com/food-and-drinks/meat-and-fish )
+
+
+done - 2. strip pages with query string that have a duplicate page without query string (use window function to find duplicate?)
+
+
+// logic 
+1. sitemap contains 'product', 'category', 'post', etc
+
+2. if google maps, then local
+
+3. if add to currency price, cart, review and size populated --> product -- probably count > 2 points?
+	
+	flag_reviews + flag_select_size + flag_add_to_cart + flag_cur_prices = product_score
+
+	if product_score >= 2 then product
+
+4. if no add to cart, no size, no reviews and above average prices ---> category
+
+	flag_reviews + flag_select_size + flag_add_to_cart + flag_below_avg_prices = category_score
+
+	if category_score <= 1 and flag_below_avg_cur_prices = 0 then product category
+
+5. if no add to cart, no size, no reviews and baseline currency prices --> info
+
+	if product_score < 2 then info	
+
+6. if no add to cart, no size, no reviews and below average learn more count --> blog / resource category
+
+	if product_score < 2 and flag_learn_more = 1 then info category
+
+7. need classification for actual blog posts (don't have any in this crawl)
+
+	if regex match ('/blog'|'blog.'|'resources'|'resources.'|'articles') or flag_article
+
+8. logic for status codes
+
+
+
+
+////////
+
+2/6
+
+
+
+later decision-making steps
+- flag for contains an # (apply at top level)
+
+
+1. pull urls that equal the shortest length in crawl - take length of original url, pull urls that equal minimum original url length
+
+	- goal is to eliminate pages ike predatornutrition.com/sports-nutrition/improve-performance
+
+done - 2. consolidate product_category and info_category to just category
+
+done - 3. look for keywords for info pages
+	sitemap
+	customer-service
+	returns
+	affiliate
+	loyalty
+	register
+	wholesale
+	about-us
+	help
+	signup
+	account
+	wishlist
+	jobs
+	password
+	contact
+	stores
+
+
+done - 5. cleanup for recommendations
+
+	done - flag for thin post (<500 words)
+
+4. a check on classification by page path
+
+	split into first subfolders (incl stripping query string), page endings (folder / html), look at average distribution - all done on unprocessed url (move trimming trailing slash to last step)
+		- last subfolder (.*\\(.*)\\)
+		- section after last slash (remove query string)
+		- file type (split section after last slash )
+		- 
+	- if most of the subfolder is classified a certain way, push it that way
+		- bucket by page and word count - highest word count is likely to be blog 
+		- find pages with h1 containing blog path keyword (resources, blog, etc) - potentially tag those paths as blog
+
+	also do the opposite for if class mostly consists of the opposite (.html product pages, then an ending of / shouldn't be a product page)
+
+	- regex to pull one subfolder down (for 301 suggestions) - check if it's an actual page 
+	- how to separate a resource/guide from blog post?  need to classify a blog post subfolder / subdomain, and mark any blog posts outside of that folder as resource / guide?
+
+
+6. missing page types
+	- split category into blog_category and product_category - done, but still need true-up to handle pages with just 'category' from sitemap
+	- how to classify a lead generation page?  crawl form submit tag, if more than baseline forms with also baseline prices then lead generation
+
+
+
+## Query for splitting url into paths
+
+	select
+	url,
+	paths, 
+	first_path,
+	second_last_path,
+	last_path,
+	query_string,
+	split(last_path,'.')[SAFE_ORDINAL(2)] as filename
+	FROM
+	(
+	select 
+	url,
+	ARRAY_LENGTH(SPLIT(url, '/')) paths,
+	SPLIT(url, '/')[SAFE_ORDINAL(2)] first_path,
+	ARRAY_REVERSE(SPLIT(url, '/'))[SAFE_ORDINAL(2)] second_last_path,
+	ARRAY_REVERSE(SPLIT(url, '/'))[SAFE_ORDINAL(1)] last_path,
+	split(url, '?')[SAFE_ORDINAL(2)] as query_string
+	FROM
+	(
+	SELECT  
+	lower(trim(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),'/')) as url
+
+	FROM `curious-domain-121318.seo_audit.deepcrawl` LIMIT 1000
+	)
+	)
+
+
+
+//// GETTING INTO THE LOGIC
+
+// key questions to answer
+
+0. handling query string differences between platforms
+	- deepcrawl: is canonical url = crawled url?
+		- trim canonical url
+
+		- strip all query strings from all urls (ga + deepcrawl)
+		- also strip query string from canonical (only for test)
+			- if stripped url = stripped canonical, then 'self canonical'
+			- if url last path equals canonical last path, and url last subfolder ! equals canonical last subfolder, then mark as 'canonical to separate folder' 
+			- if url last path != canonical last path, then mark as 'canonical to separate filename'
+
+		- use canonical urls for classification, etc
+
+	- ga (landing page and pageviews): is url found as a canonical url? 
+		- trim url first
+		- if yes, leave as is
+		- if no, lookup the corresponding canonical url for that url
+			- if no canonical url found, then remove query string and look up canonical url
+				- if still no canonical url found, leave as is
+
+	- gsc: presumably only picks up canonical urls (others aren't crawled)
+		- strip protocol, www and trailing slashes
+
+TEST QUERY
+SELECT  
+*
+FROM `curious-domain-121318.seo_audit_dev.deepcrawl_proc` 
+where url_trimmed like '%iso-ology%'
+or url_trimmed like '%special-offers%'
+or url_trimmed like '%types-of-sarms-and-their-benefits%'
+LIMIT 1000
+
+
+
+1. does this page have value to google?
+- use no traffic initially, see how that does
+
+2. does this page have potential value to google?
+- use straight organic impressions 
+
+3. does this page have value to site visitors?
+- use pageviews or pageviews per session (added to models)
+
+
+4. how to judge if a meta title / description is poorly written?  must contain top keyword is probably the only way
+	- added to models
+
+5. is there a page in the site with more authority on a given keyword?  can only check if another page ranks higher for the top keyword (window function sorting by ranking)
+	- added to models, checking for url with higher impressions for the keyword
+
+6. what's the traffic to the subfolder / group of subfolders?  
+	done - added first_subfolder and last_subfolder fields to deepcrawl_reclass, need to window traffic in agg model
+
+START HERE 2/12 *** 
+done - 7. add infinite scroll / pagination to deepcrawl model
+
+done 10. model traffic for last subfolder and first subfolder
+
+done - 8. model for top 5 blog category pages
+	- 301 others to them if blog category page outside of top 6 for traffic
+
+done - 9. repeat top url for keyword treatment for canonical URLs
+	- maybe make a 'canonicalization-specific' report that looks back up against raw search console table?
+
+
+
+-----
+
+CIFL first pass notes
+
+- fixed, had to add subdomain to accounts in ADP - why learn. crawled pages not appearing?  
+
+- fixed, added var to model - semrush returning branded keywords
+
+- done, due to all urls not being included in date range - set to static run_date rather than running any date - no traffic for learn. pages,  /about-cifl?
+
+- done, using url stripped if no query string in canonical url - query string not being stripped from crawl info
+	codingisforlosers.com/kpi-dashboard-confessional/?replytocom=398 
+	codingisforlosers.com/?tcb_lightbox=lightbox-another-widgetized-page-example-author-focused-homepage
+
+
+- done, fixed with removing dynamic date ranges - is first subfolder traffic overcalculating due to join somewhere?  
+	done, not using dynamic date ranges - codingisforlosers.com looks high, probably also need to partition by date
+	fixed - codingisforlosers.com/salesforce-pipeline-visualization showing different values when calc'ed as first_subfolder and last_subfolder
+
+- done, set first_subfolder to equal domain if need be - should first_path and last_path be equal for pages?
+	codingisforlosers.com/blockspring-google-sheets-tutorial
+
+- done, fixed with static dates page_type_rank needs partitioning by date
+
+- fixed, set homepage = domain in deepcrawl_class - homepage not being classified as 'homepage' (lead generation instead)
+
+- fixed, page title or description = null instead of '' meta rewrite action is 'leave as is' for all pages
+
+- fixed, set post sitemap to higher in hierarchy - posts should be article not lead_generation, due to have 'post' in the sitemap
+	codingisforlosers.com/salesforce-pipeline-visualization
+
+- done - leave 'losing traffic action' blank if sessions_yoy_pct isn't less than 0 
+
+- done - switch keyword volume threshold to use gsc instead of semrush (more coverage)
+
+- done - ignore extraneous query string urls (using url length and canonical flag)
+
+- done for now - review page types (product_category especially)
+	done - 404 page needs 404 tagging
+
+	- product_category
+		codingisforlosers.com/blockspring-vs-supermetrics-spreadsheet-reporting-automation/embed - canonicalized, leave as is
+
+	done, changed regex and rely on sitemap category - lead generation
+		- /templates/ and /author/ pages being tagged as lead generation instead of category
+			- set submit regex to ignore if no space afterwards
+		
+		codingisforlosers.com/templates/blockspring/page/2
+
+	- potentially have reclass away from category if there isn't traffic to lower subfolders
+
+done - filter only ga hostnames that are configured as domains in deepcrawl + pages with path != (not set) (ga_stats filter)
+
+done, share data for ryan response - mark pages not found in crawl / sitemap as 'quality review, not found in crawl / sitemap' - ask ryan what we want to do with those pages (noindex / block crawl)
+
+	done in actions.sql - filter out pages with no traffic in last 30d that aren't in the crawl
+
+done, error handled - canonical action needs better 'canonicalize to: ' logic - what if there is no page to canonicalize to, or page is missing canonical?
+	missing canonical - learn.codingisforlosers.com/courses/the-lazy-toolbelt/2311-wrangling-data-in-supermetrics/3074-building-queries-in-supermetrics
+
+done, replaced in ga_proc if hostname has no sessions - how to replace learn.codingisforlosers.com hostnames with codingisforlosers.com for form completions?  to avoid counting those to a page that doesn't exist in the sitemap / crawl
+	- if sessions = 0 and leads + transaction > 0 and top session hostname for page path is != domain then replace hostname with top session hostname
+
+
+- done, leave as 'missing from crawl' and manual review - most of these pages don't still exist
+
+- done, were being filtered from model - review crawl to see why learn. pages aren't being found
+
+
+open questions
+
+
+- changed settings, see how it pans out - review actions for pages like 'learn.codingisforlosers.com/courses/the-google-sheets-query-function/2417-getting-started-with-sheets-queries/3262-date-comparisons-in-queries-why-so-complex'
+
+	- potentially go to a second subfolder rather than first?
+	- in report, view actions aggregated by subfolder, so you can see where the issue subdomains / subfolders live
+
+done - tightened up crawl to miss most false form submit flags, and added pagination check to category pages - review category pages being marked with lead_generation
+	codingisforlosers.com/author/cifl/page/2
+
+done - mark /login / register / signup pages as 'info'
+
+done - review info filters
+	learn.codingisforlosers.com/courses/the-lazy-toolbelt/2309-build-your-own-lazy-toolbelt/3096-get-help-with-a-project
+	learn.codingisforlosers.com/forgot-password change to 'admin'
+
+
+
+
+
+
+
+
+-------
+
+
+--
+
+
+if 404
+	301 redirect to one folder down (replace last path element with blank?)
+
+if anchor link getting traffic
+	leave as is
+
+tagged as noindex
+	remove from sitemap
+
+if 301
+	leave as is, add to 301 report
+
+if 302 redirect
+	301 redirect to the same page
+
+if 'site info' page
+	if 0 conversions / goal completions / 0 traffic / 0 keywords ranking / 0 links
+		- does this page have potential to rank for traffic?  probably not going to be able to answer this question
+			- if yes, then mark update on-page or target w/ links
+
+		- is this a page google needs to see (contact, about etc)?  all 'info' pages will likely fall in this bucket
+			- if yes, then mark leave as is
+
+			- if no, then
+				- if no value to website visitors, 301 redirect
+				- if has value to visitors (pageviews), then block the crawl (if belonging to subfolder with no traffic)
+				- if has value to visitors (pageviews) but doesn't belong to subfolder with no traffic, then no index
+
+	if losing traffic
+		- mark as 'update on page' and 'target w links'
+
+	if 'thin' (low word count)
+		- mark as 'update content'
+
+
+if 'blog category' page
+	should have max 4-6 blog category pages
+	need to add to model- if no pagination, mark as 'needs pagination or infinite scroll'
+	- if no metas or titles / poorly written (doesn't contain top keyword), mark as 'update on page'
+	- if metas and titles are good, mark 'leave as is'
+	- categories outside of the core focus of the site (not picking up traffic) should be 301d and redirected back to top blog category pages
+
+if 'lead generation' or 'local' or 'product' or 'article'
+	if it has traffic
+		- ranking in top 3 for a keyword > 500 volume, mark 'leave as is'
+		- ranking between 3 and 20 or not ranking at all, mark as 'target w links' and 'update on page'
+
+	if it has no traffic
+		- mark as 'quality review' (likely 301 to next directory up)
+
+if 'product category page'
+	need to add to models - if no pagination (and no infinite scroll), mark as 'needs pagination or infinite scroll'
+
+	if it has traffic
+	- ranking in top 3 for a keyword > 500 volume, mark 'leave as is'
+		- ranking between 3 and 20 or not ranking at all, mark as 'target w links' and 'update on page'
+
+	if it has no traffic
+		- mark as 'quality review' (likely 301 to next directory up)		
+
+if the canonical url != url
+	- if the canonical url has higher traffic for keywords (or higher traffic overall), mark 'leave as is'
+	- if there is a higher-ranking page on the topic (measured by keyword? - take list of top 3 focus keywords), then mark that page as 'canonicalize' and refer to the highest ranking page
+
+
+
+
+
+
+
+

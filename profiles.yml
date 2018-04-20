@@ -1,0 +1,39 @@
+
+# For more information on how to configure this file, please see:
+# https://github.com/fishtown-analytics/dbt/blob/master/sample.profiles.yml
+
+directive:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: agency-data-pipeline-185318
+      schema: DBT
+      threads: 4
+      keyfile: /users/davidkrevitt/bigquery/adp-directive.json
+    prod:
+      type: bigquery
+      method: service-account
+      project: agency-data-pipeline-185318
+      schema: agency_data_pipeline
+      threads: 4
+      keyfile: /users/davidkrevitt/bigquery/adp-directive.json
+
+seo-audit:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: curious-domain-121318
+      schema: seo_audit_dev
+      threads: 4
+      keyfile: /users/davidkrevitt/bigquery/seo-audit.json
+    prod:
+      type: bigquery
+      method: service-account
+      project: curious-domain-121318
+      schema: seo_audit
+      threads: 4
+      keyfile: /users/davidkrevitt/bigquery/seo-audit.json      

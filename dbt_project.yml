@@ -1,0 +1,60 @@
+
+# Name your package! Package names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'seo_audit'
+version: '1.0'
+
+# This setting configures which "profile" dbt uses for this project. Profiles contain
+# database connection information, and should be configured in the  ~/.dbt/profiles.yml file
+profile: 'seo-audit'
+
+# These configurations specify where dbt should look for different types of files.
+# The `source-paths` config, for example, states that source models can be found
+# in the "models/" directory. You probably won't need to change these!
+source-paths: ["models"]
+analysis-paths: ["analysis"] 
+test-paths: ["tests"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+    - "target"
+    - "dbt_modules"
+
+# You can define configurations for models in the `source-paths` directory here.
+# Using these configurations, you can enable or disable models, change how they
+# are materialized, and more!
+
+# In this example config, we tell dbt to build all models in the example/ directory
+# as views (the default). Try changing `view` to `table` below, then re-running dbt
+models:
+  vars:
+    accounts: "`curious-domain-121318.seo_audit.accounts`"
+    mappings_ga: "`curious-domain-121318.seo_audit.mappings_ga`"
+    ga: "`curious-domain-121318.seo_audit.ga`"
+    gsc: "`curious-domain-121318.seo_audit.gsc`"
+    majestic: "`curious-domain-121318.seo_audit.majestic`"    
+    moz: "`curious-domain-121318.seo_audit.moz`"    
+    semrush_keyword: "`curious-domain-121318.seo_audit.semrush_keyword`"    
+    semrush_domain: "`curious-domain-121318.seo_audit.semrush_domain`"    
+    sitemap: "`curious-domain-121318.seo_audit.sitemap`"    
+    screamingfrog: "`curious-domain-121318.seo_audit.screamingfrog`"
+    brand_keywords: "('cifl', 'losers', 'coding is for losers')"
+    deepcrawl_pct_of_classification_rule: .9
+    deepcrawl_pct_of_value_rule: .3
+    high_volume_keyword_threshold: 500
+  seo_audit:
+      admin:
+          materialized: table
+      agg:
+          materialized: table
+      base-adp:
+          materialized: table
+      qc:
+          materialized: table    
+      actions:
+          materialized: table
+
+
