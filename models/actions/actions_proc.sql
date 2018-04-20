@@ -40,7 +40,7 @@ case
 	when second_subfolder_sessions_30d = 0 and second_subfolder_pageviews_30d > 0 and second_subfolder_http_status = ''  then concat('block crawl to: ', second_subfolder)
 	when last_subfolder_sessions_30d = 0 and last_subfolder_pageviews_30d > 0 and last_subfolder_http_status = '' then concat('block crawl to: ', last_subfolder)
 	when sessions_30d = 0 and pageviews_30d > 0 then 'noindex'
-	when  and pageviews_30d = 0 and last_subfolder_pageviews_30d > 0 then concat('301 to: ', last_subfolder)
+	when pageviews_30d = 0 and last_subfolder_pageviews_30d > 0 then concat('301 to: ', last_subfolder)
 	when pageviews_30d = 0 and second_subfolder_pageviews_30d > 0 then concat('301 to: ', second_subfolder)
 	when pageviews_30d = 0 and first_subfolder_pageviews_30d > 0 then concat('301 to: ', first_subfolder)
 	when pageviews_30d = 0 and first_subfolder_pageviews_30d = 0 then concat('301 to: ', domain)
