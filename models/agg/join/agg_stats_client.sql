@@ -44,7 +44,7 @@ FROM
 LEFT JOIN {{ref('accounts_proc')}} b
 ON ( a.account = b.account
 	and a.platform = b.platform )
-LEFT JOIN {{ ref('deepcrawl_reclass') }} c
+LEFT JOIN {{ ref('deepcrawl_class') }} c
 ON (
 	a.url = c.url
 	)
