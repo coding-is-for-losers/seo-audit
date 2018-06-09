@@ -170,7 +170,7 @@ FROM
     review,
     size
     FROM  
-    `{{ target.project }}.seo_audit.deepcrawl_discount_party_supplies` 
+    `{{ target.project }}.seo_audit.deepcrawl_credible` 
     )
  )
 WHERE last_crawl = crawl_datetime

@@ -41,7 +41,7 @@ models:
     semrush_domain: "`curious-domain-121318.seo_audit.semrush_domain`"    
     sitemap: "`curious-domain-121318.seo_audit.sitemap`"    
     screamingfrog: "`curious-domain-121318.seo_audit.screamingfrog`"
-    brand_keywords: "('cifl', 'losers', 'coding is for losers')"
+    brand_keywords: "('credible')"
     deepcrawl_pct_of_classification_rule: .9
     deepcrawl_pct_of_value_rule: .3
     high_volume_keyword_threshold: 500
