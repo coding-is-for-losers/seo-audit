@@ -30,31 +30,18 @@ clean-targets:         # directories to be removed by `dbt clean`
 # In this example config, we tell dbt to build all models in the example/ directory
 # as views (the default). Try changing `view` to `table` below, then re-running dbt
 models:
-  vars:
-    accounts: "`curious-domain-121318.seo_audit.accounts`"
-    mappings_ga: "`curious-domain-121318.seo_audit.mappings_ga`"
-    ga: "`curious-domain-121318.seo_audit.ga`"
-    gsc: "`curious-domain-121318.seo_audit.gsc`"
-    majestic: "`curious-domain-121318.seo_audit.majestic`"    
-    moz: "`curious-domain-121318.seo_audit.moz`"    
-    semrush_keyword: "`curious-domain-121318.seo_audit.semrush_keyword`"    
-    semrush_domain: "`curious-domain-121318.seo_audit.semrush_domain`"    
-    sitemap: "`curious-domain-121318.seo_audit.sitemap`"    
-    screamingfrog: "`curious-domain-121318.seo_audit.screamingfrog`"
-    brand_keywords: "('credible')"
-    deepcrawl_pct_of_classification_rule: .9
-    deepcrawl_pct_of_value_rule: .3
-    high_volume_keyword_threshold: 500
   seo_audit:
       admin:
           materialized: table
-      agg:
+      base:
           materialized: table
-      base-adp:
+      join:
           materialized: table
+      time:
+          materialized: table                    
+      metrics:
+          materialized: table          
       qc:
           materialized: table    
-      actions:
+      visualization:
           materialized: table
-
-
