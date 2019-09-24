@@ -1,5 +1,6 @@
 SELECT
 date,
+site,
 action_type,
 action,
 count(distinct(url)) url_count,
@@ -8,6 +9,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'Technical' as action_type,
 	top_admin_action as action,
 	url,
@@ -20,6 +22,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'On-page' as action_type,
 	schema_action as action,
 	url,
@@ -31,6 +34,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'On-page' as action_type,
 	meta_rewrite_action as action,
 	url,
@@ -42,6 +46,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'On-page' as action_type,
 	content_action as action,
 	url,
@@ -54,6 +59,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'On-page' as action_type,
 	pagination_action as action,
 	url,
@@ -65,6 +71,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'Off-page' as action_type,
 	external_link_action as action,
 	url,
@@ -76,6 +83,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'Architecture' as action_type,
 	cannibalization_action as action,
 	url,
@@ -87,6 +95,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'Architecture' as action_type,
 	internal_link_action as action,
 	url,
@@ -98,6 +107,7 @@ FROM (
 
 	SELECT
 	date,
+	site,
 	'Architecture' as action_type,
 	category_action as action,
 	url,
@@ -105,4 +115,4 @@ FROM (
 	FROM {{ ref('actions_hierarchy') }}		
 	WHERE category_action != '' AND category_action is not null	
 )
-GROUP BY date, 	action_type, action
+GROUP BY date, site, action_type, action
