@@ -5,6 +5,7 @@ account,
 site,
 domain,
 url,
+top_3_keywords,
 top_5_keywords,
 top_10_keywords,
 top_20_keywords,
@@ -30,6 +31,7 @@ FROM (
 	a.site,
 	a.domain,
 	url,
+	sum(top_3_keywords) top_3_keywords,
 	sum(top_5_keywords) top_5_keywords,
 	sum(top_10_keywords) top_10_keywords,
 	sum(top_20_keywords) top_20_keywords,
@@ -50,6 +52,7 @@ FROM (
 		site, 
 		domain,
 		url, 
+		top_3_keywords,
 		top_5_keywords,
 		top_10_keywords,
 		top_20_keywords,
@@ -64,6 +67,7 @@ FROM (
 		FROM {{ ref('search_console_keyword_proc') }} 
 		WHERE impressions >= 50
 		AND branded_flag = 0
+		AND avg_position <= 25
 		WINDOW w1 AS (PARTITION BY account, url ORDER BY impressions desc),
 		w2 AS (PARTITION BY account, url ORDER BY avg_position asc)
 	) a

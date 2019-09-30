@@ -10,17 +10,20 @@ page_type,
 
 #indicative actions roll up to each other, nested one by one
 
-case 
+case
+	when http_status_code = 404 AND backlink_count > 0 AND internal_links_in_count > 0  THEN '301 redirect + remove internal link from found_at_url' 
 	when http_status_code = 404 AND backlink_count > 0 THEN '301 redirect'
-	when http_status_code = 404 THEN concat('fix broken internal link from found_at_url')
-	when http_status_code = 302 then concat('301 redirect to redirected_to_url')
-	when http_status_code = 301 then 'leave as is'
+	when http_status_code = 404 THEN 'remove internal link from found_at_url'
+	when http_status_code = 302 THEN '301 redirect to redirected_to_url'
+	when http_status_code = 301 and redirect_chain = TRUE THEN 'fix redirect chain'
+	when http_status_code = 301 and redirect_chain = FALSE THEN 'leave 301 as is'
 	when http_status_code = 404 THEN '404, investigate'
 	else '' end as http_status_action,
 
 case 
-	when ( robots_noindex = true or http_status_code in (404, 302, 301) ) and ( found_at_sitemap is not null ) then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
-	when ( robots_noindex = false or robots_noindex is null ) and found_at_sitemap is null and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'add to sitemap'
+	when indexable = false and found_at_sitemap is not null then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
+	when indexable = true and found_at_sitemap is null then 'add to sitemap'
+	when robots_noindex is null and found_at_sitemap is null and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'add to sitemap'
 	else '' end as sitemap_action,
 
 case 
@@ -32,15 +35,16 @@ case
 case
 	when http_status_code is null and sessions_30d > 0 then 'missing from crawl, orphaned page (no internal links)'
 	when http_status_code is null and sessions_30d = 0 then 'page likely removed'
-	when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
-	when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
-	when last_subfolder_sessions_30d = 0 then concat('block crawl to: ', last_subfolder)
+	-- when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
+	-- when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
+	-- when last_subfolder_sessions_30d = 0 then concat('block crawl to: ', last_subfolder)
 	when sessions_30d = 0 and canonical_status != 'canonicalized' then 'noindex'
 	else '' end as crawl_action,		
 
 -- review page_type classification algo
 # push these schema classifications down into a lower proc model (and push other proc from deepcrawl up)
-case when page_type = 'product' and schema_type not like '%product%' then 'product'
+case when level >= 2 and schema_type not like '%breadcrumb%' then 'breadcrumb' 
+	when page_type = 'product' and schema_type not like '%product%' then 'product'
 	when page_type = 'product_category' and schema_type not like '%itemlistordertype%' then 'itemlistordertype'
 	when page_type = 'article' and schema_type not like '%article%' then 'article'
 	when page_type = 'blog_category' and schema_type not like '%blog%' then 'blog'
@@ -74,8 +78,8 @@ CASE WHEN http_status_code != 200 THEN ''
 	ELSE '' END as internal_link_action,
 
 CASE WHEN http_status_code != 200 THEN '' 
-	WHEN http_status_code = 200 AND sessions_yoy_pct < total_organic_sessions_yoy_pct and pct_of_organic_sessions_30d > .01 and ref_domain_count <= med_ref_domain_count THEN 'falling star: target external links'
-	WHEN http_status_code = 200 AND ( sessions_mom_pct > total_organic_sessions_mom_pct ) and sessions_mom_pct > 0 and ref_domain_count <= med_ref_domain_count THEN 'rising star: target external links'
+	WHEN http_status_code = 200 AND main_avg_position >= 3 and main_avg_position <= 20 THEN 'target external links'
+	WHEN http_status_code = 200 AND ( top_20_keywords - top_3_keywords ) >= 3 THEN 'target external links'
 	ELSE '' END as external_link_action,
 
 CASE WHEN http_status_code != 200 THEN '' 
@@ -226,6 +230,7 @@ total_ctr_yoy,
 ctr_yoy_pct,
 total_ctr_yoy_pct,
 avg_position_yoy,	
+top_3_keywords,
 top_5_keywords,
 top_10_keywords,
 top_20_keywords,

@@ -11,6 +11,7 @@ CASE WHEN regexp_contains(keyword, lower(site)) = TRUE THEN 1 ELSE 0 END as bran
 sum(impressions) impressions,
 sum(clicks) clicks,
 sum(avg_position) avg_position,
+max(CASE WHEN avg_position <= 3 THEN 1 ELSE 0 END) as top_3_keywords,
 max(CASE WHEN avg_position <= 5 THEN 1 ELSE 0 END) as top_5_keywords,
 max(CASE WHEN avg_position <= 10 THEN 1 ELSE 0 END) as top_10_keywords,
 max(CASE WHEN avg_position <= 20 THEN 1 ELSE 0 END) as top_20_keywords
