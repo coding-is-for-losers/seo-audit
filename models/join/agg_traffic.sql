@@ -316,4 +316,5 @@ FROM (
 	FROM {{ref('ga_stats')}}  
 	WINDOW w1 as (PARTITION BY date, site)
 ) 
+WHERE date is not null
 GROUP BY date, site, domain, url
