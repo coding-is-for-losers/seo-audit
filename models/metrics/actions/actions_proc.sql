@@ -15,14 +15,14 @@ case
 	when http_status_code = 404 AND backlink_count > 0 THEN '301 redirect'
 	when http_status_code = 404 THEN 'remove internal link from found_at_url'
 	when http_status_code = 302 THEN '301 redirect to redirected_to_url'
-	when http_status_code = 301 and redirect_chain = TRUE THEN 'fix redirect chain'
-	when http_status_code = 301 and redirect_chain = FALSE THEN 'leave 301 as is'
+	when http_status_code = 301 and lower(redirect_chain) = 'true' THEN 'fix redirect chain'
+	when http_status_code = 301 and lower(redirect_chain) = 'false' THEN 'leave 301 as is'
 	when http_status_code = 404 THEN '404, investigate'
 	else '' end as http_status_action,
 
 case 
-	when indexable = false and found_at_sitemap is not null then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
-	when indexable = true and found_at_sitemap is null then 'add to sitemap'
+	when indexable = FALSE and found_at_sitemap is not null then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
+	when indexable = TRUE and found_at_sitemap is null then 'add to sitemap'
 	when robots_noindex is null and found_at_sitemap is null and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'likely add to sitemap'
 	else '' end as sitemap_action,
 
