@@ -1,7 +1,7 @@
 SELECT
 b.site, 
 b.domain,
-a.hostname,
+-- a.hostname,
 account,
 month date,
 unix_date,
@@ -25,7 +25,7 @@ FROM (
         unix_date(month) unix_date,
         time_of_entry,
         cast(time_of_entry as date) date_of_entry,
-        first_value(time_of_entry) OVER (PARTITION BY view, landing_page_path ORDER BY time_of_entry desc) lv,
+        first_value(time_of_entry) OVER (PARTITION BY view, landing_page_path, hostname ORDER BY time_of_entry desc) lv,
         replace(hostname,'www.','') hostname,
         landing_page_path,
         cast(sessions as int64) sessions,
@@ -46,4 +46,5 @@ ON (
 )
 WHERE time_of_entry = lv
 -- AND replace(b.domain,'www.','') = replace(a.hostname,'www.','')
-GROUP BY b.site, domain, hostname, account, month, unix_date, date_of_entry, url
+-- GROUP BY b.site, domain, hostname, account, month, unix_date, date_of_entry, url
+GROUP BY b.site, domain, account, month, unix_date, date_of_entry, url
