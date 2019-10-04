@@ -42,8 +42,8 @@ FROM (
         ) a
 LEFT JOIN {{ ref('domains_proc') }} b
 ON (
-        a.account = b.google_analytics_account
-        )
+    a.account = b.google_analytics_account
+)
 WHERE time_of_entry = lv
-AND b.domain = a.hostname
+-- AND replace(b.domain,'www.','') = replace(a.hostname,'www.','')
 GROUP BY b.site, domain, hostname, account, month, unix_date, date_of_entry, url
