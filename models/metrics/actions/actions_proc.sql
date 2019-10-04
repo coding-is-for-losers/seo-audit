@@ -90,7 +90,8 @@ CASE WHEN http_status_code != 200 THEN ''
 
 # category actions (only display pagination_action if category_action is blank)
 
-case when page_type = 'category' and page_type_rank > 10 and sessions_30d < 5 and url not like '%/page/%' then concat('potential 301 to top category: ', first_value(url) over (partition by page_type, domain, date order by page_type_rank asc)) else '' end as category_action,
+-- case when page_type = 'category' and page_type_rank > 10 and sessions_30d < 5 and url not like '%/page/%' then concat('potential 301 to top category: ', first_value(url) over (partition by page_type, domain, date order by page_type_rank asc)) else '' end as category_action,
+'' as category_action,
 
 case when page_type = 'category' and flag_paginated = 0 and url_contains_digit = 1 then 'needs pagination' else '' end as pagination_action,
 
