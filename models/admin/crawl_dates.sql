@@ -1,13 +1,23 @@
 with deepcrawl as (
 
-	SELECT
-	site,
-	crawl_date,
-	crawl_report_month,
-	lag(crawl_report_month, 1) over w1 as previous_crawl_report_month,
-	lead(crawl_report_month, 1) over w1 as next_crawl_report_month
-	FROM {{ ref('deepcrawl_proc') }}
-	WINDOW w1 as (partition by domain, site order by crawl_report_month asc)
+  SELECT
+  site,
+  crawl_date,
+  crawl_report_month,
+  max(previous_crawl_report_month) previous_crawl_report_month,
+  max(next_crawl_report_month) next_crawl_report_month
+  FROM (
+
+		SELECT
+		site,
+		crawl_date,
+		crawl_report_month,
+		lag(crawl_report_month, 1) over w1 as previous_crawl_report_month,
+		lead(crawl_report_month, 1) over w1 as next_crawl_report_month
+		FROM {{ ref('deepcrawl_proc') }}
+		WINDOW w1 as (partition by domain, site order by crawl_report_month asc)
+   )
+   GROUP BY site, crawl_date, crawl_report_month
 )
 
 SELECT
