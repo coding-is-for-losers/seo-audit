@@ -57,10 +57,10 @@ case when level >= 2 and schema_type not like '%breadcrumb%' then 'breadcrumb'
 # analytics actions are separate from other actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 
 CASE WHEN http_status_code != 200 THEN '' 
-	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 1 AND main_keyword = best_keyword THEN 'page cannibalizing main keyword, consider consolidating content'
-	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 1 AND main_keyword != best_keyword THEN 'page cannibalizing main + best keywords, consider consolidating content'
-	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 0 THEN 'page cannibalizing main keyword, consider consolidating content'
-	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 0 AND best_keyword_cannibalization_flag = 1 THEN 'page cannibalizing best keyword, consider consolidating content'
+	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 1 AND main_keyword = best_keyword AND is_self_canonical = TRUE THEN 'page cannibalizing main keyword, consider consolidating content'
+	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 1 AND main_keyword != best_keyword AND is_self_canonical = TRUE THEN 'page cannibalizing main + best keywords, consider consolidating content'
+	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 0 AND is_self_canonical = TRUE THEN 'page cannibalizing main keyword, consider consolidating content'
+	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 0 AND best_keyword_cannibalization_flag = 1 AND is_self_canonical = TRUE THEN 'page cannibalizing best keyword, consider consolidating content'
 	ELSE '' END as cannibalization_action,
 
 CASE WHEN http_status_code != 200 THEN '' 
