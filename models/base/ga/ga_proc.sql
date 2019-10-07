@@ -10,7 +10,7 @@ SELECT * FROM (
     url,
     regexp_extract(url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as url_domain,
     sessions,
-    transactions_revenue,
+    transaction_revenue,
     transactions,
     ecommerce_conversion_rate,
     goal_completions_all_goals,
