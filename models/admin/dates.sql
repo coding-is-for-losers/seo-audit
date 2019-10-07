@@ -50,6 +50,6 @@ FROM (
 	  GROUP BY site, date 
 	)
 	WHERE ga_count > 0
-	AND gsc_count > 0 
+	OR gsc_count > 0 
 	GROUP BY site, date
 )
