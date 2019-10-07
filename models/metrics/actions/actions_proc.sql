@@ -27,7 +27,7 @@ case
 	else '' end as sitemap_action,
 
 case 
-	when http_status_code = 404 then ''
+	when http_status_code in (301, 404) then ''
 	when canonical_status = 'missing_canonical' then 'missing canonical'
 	when canonical_status = 'canonicalized' then 'canonicalized, leave as is'
 	else '' end as canonical_action,
