@@ -23,7 +23,7 @@ FROM (
 	time_of_entry,
 	date_of_entry,
 	account,
-	lower(trim(regexp_replace(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/')) url,
+	lower(concat(trim(regexp_replace(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/'),'/')) url,
 	keyword,
 	impressions,
 	clicks,

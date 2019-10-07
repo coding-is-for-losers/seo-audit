@@ -19,7 +19,7 @@ FROM (
 	cast(time_of_entry as date) date_of_entry,
 	first_value(time_of_entry) OVER (PARTITION BY requested_object, landing_page, month ORDER BY time_of_entry desc) lv,	
 	requested_object as account,
-	lower(trim(regexp_replace(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/')) url,
+	lower(concat(trim(regexp_replace(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/'),'/')) url,
 	impressions,
 	clicks,
 	average_position

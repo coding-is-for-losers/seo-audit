@@ -4,6 +4,12 @@ crawl_date,
 coalesce(a.site, b.site) site,
 coalesce(a.domain, b.domain) domain,
 coalesce(a.url, b.url) url,
+CASE 
+	WHEN http_status_code is not null AND sessions_30d > 0 AND impressions_30d > 0 THEN 'Deepcrawl, GA, GSC'
+	WHEN http_status_code is not null AND sessions_30d > 0 THEN 'Deepcrawl, GA'
+	WHEN http_status_code is not null AND impressions_30d > 0 THEN 'Deepcrawl, GSC'
+	WHEN http_status_code is not null THEN 'Deepcrawl' 
+	ELSE null END as found_at,
 -- deepcrawl data
 case when found_at_sitemap is not null then 'yes' else 'no' end as in_sitemap,
 found_at_sitemap,

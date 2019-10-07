@@ -4,6 +4,7 @@ crawl_date,
 site,
 domain,
 url,
+found_at,
 found_at_sitemap,
 canonical_url,
 page_type,
@@ -38,7 +39,7 @@ case
 	-- when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
 	-- when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
 	-- when last_subfolder_sessions_30d = 0 then concat('block crawl to: ', last_subfolder)
-	when sessions_30d = 0 and canonical_status != 'canonicalized' then 'noindex'
+	when sessions_30d = 0 and canonical_status != 'canonicalized' then 'potential noindex, review content for relevance'
 	else '' end as crawl_action,		
 
 -- review page_type classification algo

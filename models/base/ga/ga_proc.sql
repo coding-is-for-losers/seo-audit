@@ -27,8 +27,8 @@ SELECT * FROM (
         unix_date,
         date_of_entry,
         CASE WHEN regexp_contains(landing_page_path,domain) 
-          THEN lower(trim(regexp_replace(regexp_replace(replace(replace(replace(landing_page_path,'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/'))
-          ELSE lower(trim(regexp_replace(regexp_replace(replace(replace(replace(CONCAT(a.hostname,landing_page_path),'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/'))
+          THEN lower(concat(trim(regexp_replace(regexp_replace(replace(replace(replace(landing_page_path,'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/'),'/'))
+          ELSE lower(concat(trim(regexp_replace(regexp_replace(replace(replace(replace(CONCAT(a.hostname,landing_page_path),'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/'),'/'))
           END as url,
         sum(sessions) sessions,
         sum(transaction_revenue) transaction_revenue,
