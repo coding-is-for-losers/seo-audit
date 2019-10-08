@@ -9,6 +9,9 @@ CASE
 	WHEN http_status_code is not null AND sessions_30d > 0 THEN 'Deepcrawl, GA'
 	WHEN http_status_code is not null AND impressions_30d > 0 THEN 'Deepcrawl, GSC'
 	WHEN http_status_code is not null THEN 'Deepcrawl' 
+	WHEN sessions_30d > 0 AND impressions_30d > 0 THEN 'GA, GSC'
+	WHEN sessions_30d > 0 THEN 'GA'
+	WHEN impressions_30d > 0 THEN 'GSC'
 	ELSE null END as found_at,
 -- deepcrawl data
 case when found_at_sitemap is not null then 'yes' else 'no' end as in_sitemap,
