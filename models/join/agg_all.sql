@@ -1,5 +1,5 @@
 SELECT 
-date, 
+coalesce(a.date, b.report_date) date, 
 crawl_date,
 coalesce(a.site, b.site) site,
 coalesce(a.domain, b.domain) domain,
@@ -190,7 +190,8 @@ FROM
   {{ref('agg_traffic')}} a
 FULL OUTER JOIN {{ref('deepcrawl_stats')}} b
 ON ( a.url = b.url
-	and a.site = b.site )
+	and a.site = b.site
+	and a.date = b.report_date )
 WINDOW w1 as (PARTITION BY b.domain, date),
 w2 as (PARTITION BY b.domain, crawl_date, first_subfolder),
 w3 as (PARTITION BY b.domain, crawl_date, second_subfolder),
