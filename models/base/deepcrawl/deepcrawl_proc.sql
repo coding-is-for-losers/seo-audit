@@ -16,7 +16,7 @@ FROM
   crawl_date,
   crawl_month,
   date_sub(crawl_month, INTERVAL 1 MONTH) crawl_report_month,
-  first_value(crawl_date) OVER (PARTITION BY a.domain, crawl_month ORDER BY crawl_date desc) latest_crawl_date,
+  first_value(crawl_datetime) OVER (PARTITION BY a.domain, crawl_month, url ORDER BY crawl_datetime desc) latest_crawl_datetime,
   found_at_sitemap,
   http_status_code,
   case when url like 'https%' then 'https' 
@@ -182,11 +182,13 @@ FROM
       size
       FROM  
       `{{ target.project }}.{{ target.schema }}.deepcrawl` 
+      WHERE url not like '%target=_blank%'
+      and ( url = primary_url OR primary_url is null )
     ) a
   LEFT JOIN {{ ref('domains_proc') }} b
   ON (
     a.domain = b.domain
     )
  )
-WHERE latest_crawl_date = crawl_date
+WHERE latest_crawl_datetime = crawl_datetime
 AND self_redirect = 0 
