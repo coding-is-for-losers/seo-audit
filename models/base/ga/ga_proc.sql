@@ -8,7 +8,7 @@ SELECT * FROM (
     unix_date,
     date_of_entry,
     url,
-    regexp_extract(url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as url_domain,
+    replace(regexp_extract(url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)'),'(not set)','') as url_domain,
     sessions,
     transaction_revenue,
     transactions,

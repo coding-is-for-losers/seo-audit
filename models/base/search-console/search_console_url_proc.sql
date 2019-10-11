@@ -20,6 +20,7 @@ FROM (
 	first_value(time_of_entry) OVER (PARTITION BY requested_object, landing_page, month ORDER BY time_of_entry desc) lv,	
 	requested_object as account,
 	lower(concat(trim(regexp_replace(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/'),'/')) url,
+	regexp_extract(landing_page,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as url_domain,
 	impressions,
 	clicks,
 	average_position
@@ -31,4 +32,5 @@ ON (
 	a.account = b.search_console_account
 )
 WHERE time_of_entry = lv
+AND a.url_domain = b.domain
 GROUP BY b.site, b.domain, a.account, date, unix_date, date_of_entry, url

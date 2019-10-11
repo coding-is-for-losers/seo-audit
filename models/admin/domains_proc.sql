@@ -7,7 +7,7 @@ FROM (
 
 	SELECT
 	site_name site,
-	replace(replace(replace(full_homepage_url,'www.',''),'http://',''),'https://','') domain,
+	trim(replace(replace(replace(full_homepage_url,'www.',''),'http://',''),'https://',''),'/') domain,
 	google_search_console_account search_console_account,
 	google_analytics_account,
 	time_of_entry,

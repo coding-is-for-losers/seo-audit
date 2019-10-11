@@ -24,6 +24,7 @@ FROM (
 	date_of_entry,
 	account,
 	lower(concat(trim(regexp_replace(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\?.*$',''),r'\#.*$',''),'/'),'/')) url,
+	regexp_extract(landing_page,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as url_domain,
 	keyword,
 	impressions,
 	clicks,
@@ -50,6 +51,7 @@ LEFT JOIN {{ ref('domains_proc') }} b
 ON (
 	a.account = b.search_console_account
 )
+WHERE a.url_domain = b.domain
 GROUP BY b.site, 
 b.domain,
 a.account,
