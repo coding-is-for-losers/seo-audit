@@ -257,4 +257,4 @@ FROM
  )
 WHERE latest_crawl_datetime = crawl_datetime
 AND self_redirect = 0 
-GROUP domain, site, url, crawl_datetime, crawl_date, crawl_month, crawl_report_month, latest_crawl_datetime
+GROUP BY domain, site, url, crawl_datetime, crawl_date, crawl_month, crawl_report_month, latest_crawl_datetime
