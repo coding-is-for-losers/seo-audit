@@ -22,8 +22,7 @@ case
 	else '' end as http_status_action,
 
 case 
-	when indexable = FALSE and found_at_sitemap is not null then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
-	when indexable = TRUE and found_at_sitemap is null then 'add to sitemap'
+	when ( http_status_code != 200 or robots_noindex = TRUE ) and found_at_sitemap is not null then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
 	when robots_noindex is null and found_at_sitemap is null and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'likely add to sitemap'
 	else '' end as sitemap_action,
 
