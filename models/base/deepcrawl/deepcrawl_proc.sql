@@ -215,8 +215,8 @@ FROM
       indexable,
       robots_noindex,
       is_self_canonical,
-      backlink_count,
-      backlink_domain_count,
+      cast(backlink_count as int64) backlink_count,
+      cast(backlink_domain_count as int64) backlink_domain_count,
       redirected_to_url,
       CASE WHEN regexp_extract(trim(redirected_to_url, '/'),r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') = regexp_extract(url ,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)')
         OR regexp_extract(trim(url, '/'),r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') = regexp_extract(redirected_to_url ,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)')
