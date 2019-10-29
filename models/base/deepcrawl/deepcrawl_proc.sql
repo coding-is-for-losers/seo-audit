@@ -81,7 +81,7 @@ FROM
   crawl_date,
   crawl_month,
   date_sub(crawl_month, INTERVAL 1 MONTH) crawl_report_month,
-  first_value(crawl_datetime) OVER (PARTITION BY a.domain, crawl_month, url_proc ORDER BY crawl_datetime desc) latest_crawl_datetime,
+  first_value(crawl_datetime) OVER (PARTITION BY a.domain, crawl_month, url ORDER BY crawl_datetime desc) latest_crawl_datetime,
   found_at_sitemap,
   http_status_code,
   case when url like 'https%' then 'https' 
