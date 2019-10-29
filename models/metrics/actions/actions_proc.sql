@@ -23,7 +23,7 @@ case
 
 case 
 	when ( http_status_code != 200 or is_noindex = 1 ) and found_at_sitemap is not null then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
-	when is_noindex = 0 and found_at_sitemap is null and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'likely add to sitemap'
+	when is_noindex = 0 and found_at_sitemap is null and flag_paginated = 0 and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'likely add to sitemap'
 	else '' end as sitemap_action,
 
 case 
@@ -34,16 +34,17 @@ case
 
 case
 	when http_status_code is null and sessions_ttm > 0 then 'missing from crawl, orphaned page (no internal links)'
-	when http_status_code is null and sessions_30d = 0 then 'page likely removed, missing from crawl and 0 traffic this month'
+	when http_status_code is null and sessions_30d = 0 and flag_paginated = 0 then 'page likely removed, missing from crawl and 0 traffic this month'
 	-- when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
 	-- when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
 	-- when last_subfolder_sessions_30d = 0 then concat('block crawl to: ', last_subfolder)
-	when sessions_ttm = 0 and canonical_status != 'canonicalized' and is_noindex = 0 then 'potential noindex, review content for relevance'
+	when sessions_ttm = 0 and canonical_status != 'canonicalized' and is_noindex = 0 and flag_paginated = 0 then 'potential noindex, review content for relevance'
 	else '' end as crawl_action,		
 
 -- review page_type classification algo
 # push these schema classifications down into a lower proc model (and push other proc from deepcrawl up)
-case when level >= 2 and schema_type not like '%breadcrumb%' then 'breadcrumb' 
+case when flag_paginated = 1 then '' 
+	when level >= 2 and schema_type not like '%breadcrumb%' then 'breadcrumb' 
 	when page_type = 'product' and schema_type not like '%product%' then 'product'
 	when page_type = 'product_category' and schema_type not like '%itemlistordertype%' then 'itemlistordertype'
 	when page_type = 'article' and schema_type not like '%article%' then 'article'
@@ -55,14 +56,14 @@ case when level >= 2 and schema_type not like '%breadcrumb%' then 'breadcrumb'
 
 # analytics actions are separate from other actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 
-CASE WHEN http_status_code != 200 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
 	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 1 AND main_keyword = best_keyword AND is_self_canonical = TRUE THEN 'page cannibalizing main keyword, consider consolidating content'
 	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 1 AND main_keyword != best_keyword AND is_self_canonical = TRUE THEN 'page cannibalizing main + best keywords, consider consolidating content'
 	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 0 AND is_self_canonical = TRUE THEN 'page cannibalizing main keyword, consider consolidating content'
 	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 0 AND best_keyword_cannibalization_flag = 1 AND is_self_canonical = TRUE THEN 'page cannibalizing best keyword, consider consolidating content'
 	ELSE '' END as cannibalization_action,
 
-CASE WHEN http_status_code != 200 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
 	WHEN http_status_code = 200 AND impressions_mom_pct > total_impressions_mom_pct and clicks_mom_pct > total_clicks_mom_pct THEN 'rising content'
 	WHEN http_status_code = 200 AND transactions_30d > 0 and sessions_30d > med_sessions_30d and ecommerce_conversion_rate_mom_pct < total_organic_ecommerce_conversion_rate_mom_pct THEN 'below-trend conversion rate'
 	WHEN http_status_code = 200 AND sessions_30d > med_sessions_30d and goal_conversion_rate_all_goals_mom_pct < total_organic_goal_conversion_rate_mom_pct THEN 'below-trend conversion rate'
@@ -71,18 +72,18 @@ CASE WHEN http_status_code != 200 THEN ''
 	WHEN http_status_code = 200 AND page_type = 'lead generation' and transactions_30d = 0 and goal_completions_all_goals_30d = 0 THEN 'inactive lead gen page: 0 conversions'
 	ELSE '' END as content_action,
 
-CASE WHEN http_status_code != 200 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
 	WHEN http_status_code = 200 AND internal_links_out_count <= bottom_quartile_internal_links_out_count and ( sessions_30d > med_sessions_30d or ref_domain_count >= med_ref_domain_count ) THEN 'add internal outlinks'
 	WHEN http_status_code = 200 AND internal_links_in_count <= bottom_quartile_internal_links_in_count and ( sessions_30d > med_sessions_30d or ref_domain_count >= med_ref_domain_count ) THEN 'add internal inlinks'
 	WHEN http_status_code = 200 AND internal_links_in_count >= top_quartile_internal_links_in_count and ( sessions_30d <= bottom_quartile_sessions_30d or ref_domain_count <= bottom_quartile_ref_domain_count ) THEN 'reduce internal inlinks'
 	ELSE '' END as internal_link_action,
 
-CASE WHEN http_status_code != 200 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
 	WHEN http_status_code = 200 AND main_avg_position >= 3 and main_avg_position <= 20 THEN 'target external links'
 	WHEN http_status_code = 200 AND ( top_20_keywords - top_3_keywords ) >= 3 THEN 'target external links'
 	ELSE '' END as external_link_action,
 
-CASE WHEN http_status_code != 200 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
 	WHEN http_status_code = 200 AND (description is null or page_title is null ) and http_status_code is not null then 'metas missing' 
 	WHEN http_status_code = 200 AND (title_contains_top_keyword + description_contains_top_keyword) = 0 AND (best_impressions > 0 OR main_impressions > 0) then concat('update metas to include main or best keyword') 
 	WHEN http_status_code = 200 AND impressions_mom_pct > total_impressions_mom_pct and ctr_30d < med_ctr_30d AND (best_impressions > 0 OR main_impressions > 0) THEN 'low ctr: review meta relevance for top keywords'

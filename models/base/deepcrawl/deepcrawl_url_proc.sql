@@ -90,7 +90,7 @@ case when qt_form_submit > min_form_submit then 1 else 0 end as flag_form_submit
 case when regexp_contains(url, r'/blog|blog.|resource|article|knowledge') then 1 else 0 end as flag_blog_path,
 case when regexp_contains(h1_tag, r'/blog|blog.|resource|article|knowledge') then 1 else 0 end as flag_blog_h1,
 case when regexp_contains(url, r'sitemap|customer-service|returns|affiliate|loyalty|register|wholesale|about-us|help|account|wishlist|jobs|password|contact|stores|login|signup') then 1 else 0 end as flag_info_path,
-case when rel_next_url is not null or rel_prev_url is not null then 1 else 0 end as flag_paginated 
+case when rel_next_url is not null or rel_prev_url is not null or paginated_page = true then 1 else 0 end as flag_paginated 
 
 FROM 
  (
@@ -179,7 +179,8 @@ FROM
   PERCENTILE_CONT(qt_learn_more, .5) OVER w2 AS med_learn_more,
   qt_form_submit,
   min(qt_form_submit) OVER w1 AS min_form_submit,
-  qt_infinite_scroll
+  qt_infinite_scroll,
+  paginated_page
   FROM {{ ref('deepcrawl_proc') }}
   WINDOW w1 as (PARTITION BY domain, crawl_date, header_content_type, http_status_code ORDER BY domain desc),
   w2 as (PARTITION BY domain, crawl_date, header_content_type, http_status_code)

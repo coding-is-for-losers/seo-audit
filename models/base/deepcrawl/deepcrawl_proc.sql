@@ -64,7 +64,8 @@ max(currency_price) currency_price,
 max(add_to_cart) add_to_cart,
 max(learn_more) learn_more,
 max(review) review,
-max(size) size
+max(size) size,
+max(paginated_page) paginated_page
 FROM
 (
   SELECT 
@@ -137,7 +138,8 @@ FROM
   add_to_cart,
   learn_more,
   review,
-  size
+  size,
+  paginated_page
   FROM
   ( 
     -- SELECT 
@@ -249,7 +251,8 @@ FROM
       add_to_cart,
       learn_more,
       review,
-      size
+      size,
+      paginated_page
       FROM  
       `{{ target.project }}.{{ target.schema }}.deepcrawl` 
       WHERE url not like '%target=_blank%'
