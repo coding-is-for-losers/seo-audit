@@ -199,6 +199,7 @@ FROM
       SELECT 
       url,
       lower(concat(trim(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),'/'),'/')) as url_proc,
+      regexp_contains(url, '.img$|.png$|.jpg$|.css$.|js$|.pdf$') non_html_url,
       regexp_extract(url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as domain,
       canonical_url,
       crawl_datetime,
@@ -262,4 +263,5 @@ FROM
 WHERE latest_crawl_datetime = crawl_datetime
 AND self_redirect = 0 
 AND url_query_string_flag = canonical_query_string_flag
+AND non_html_url = false
 GROUP BY domain, site, url, crawl_datetime, crawl_date, crawl_month, crawl_report_month, latest_crawl_datetime
