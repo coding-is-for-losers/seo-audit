@@ -49,6 +49,8 @@ case when regexp_contains(description, main_keyword) OR regexp_contains(descript
 description_length,
 indexable,
 robots_noindex,
+meta_noindex,
+CASE WHEN robots_noindex = TRUE or meta_noindex = TRUE then 1 else 0 end as is_noindex,
 is_self_canonical,
 redirected_to_url,
 found_at_url,

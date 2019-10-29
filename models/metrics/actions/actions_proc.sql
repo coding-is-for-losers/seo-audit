@@ -22,8 +22,8 @@ case
 	else '' end as http_status_action,
 
 case 
-	when ( http_status_code != 200 or robots_noindex = TRUE ) and found_at_sitemap is not null then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
-	when robots_noindex is null and found_at_sitemap is null and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'likely add to sitemap'
+	when ( http_status_code != 200 or is_noindex = 1 ) and found_at_sitemap is not null then concat('remove from sitemap: ', coalesce(found_at_sitemap) ) 
+	when is_noindex = 0 and found_at_sitemap is null and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'likely add to sitemap'
 	else '' end as sitemap_action,
 
 case 
@@ -38,7 +38,7 @@ case
 	-- when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
 	-- when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
 	-- when last_subfolder_sessions_30d = 0 then concat('block crawl to: ', last_subfolder)
-	when sessions_ttm = 0 and canonical_status != 'canonicalized' then 'potential noindex, review content for relevance'
+	when sessions_ttm = 0 and canonical_status != 'canonicalized' and is_noindex = 0 then 'potential noindex, review content for relevance'
 	else '' end as crawl_action,		
 
 -- review page_type classification algo
@@ -124,6 +124,8 @@ description_contains_top_keyword,
 description_length,
 indexable,
 robots_noindex,
+meta_noindex,
+is_noindex,
 is_self_canonical,
 redirected_to_url,
 found_at_url,
