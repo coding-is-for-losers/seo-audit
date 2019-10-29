@@ -258,4 +258,5 @@ FROM
  )
 WHERE latest_crawl_datetime = crawl_datetime
 AND self_redirect = 0 
+AND url_query_string_flag = canonical_query_string_flag
 GROUP BY domain, site, url, crawl_datetime, crawl_date, crawl_month, crawl_report_month, latest_crawl_datetime
