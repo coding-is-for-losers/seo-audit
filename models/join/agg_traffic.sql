@@ -82,7 +82,11 @@ ifnull(max(total_organic_goal_completions_all_goals_yoy), 0) total_organic_goal_
 ifnull(max(goal_conversion_rate_all_goals_yoy), 0) goal_conversion_rate_all_goals_yoy,
 ifnull(CASE WHEN max(total_organic_sessions_yoy) > 0 THEN max(total_organic_goal_completions_all_goals_yoy) / max(total_organic_sessions_yoy) ELSE null END, 0) as total_organic_goal_conversion_rate_yoy,
 ifnull(max(bounce_rate_yoy), 0) bounce_rate_yoy,
-ifnull(max(avg_seconds_on_site_yoy), 0) avg_seconds_on_site_yoy
+ifnull(max(avg_seconds_on_site_yoy), 0) avg_seconds_on_site_yoy,
+ifnull(sum(sessions_ttm), 0) sessions_ttm,
+ifnull(sum(transaction_revenue_ttm), 0) transaction_revenue_ttm,
+ifnull(sum(transactions_ttm), 0) transactions_ttm,
+ifnull(sum(goal_completions_all_goals_ttm), 0) goal_completions_all_goals_ttm
 FROM (
 
 	SELECT 
@@ -157,7 +161,11 @@ FROM (
 	null as total_organic_goal_completions_all_goals_yoy,
 	null as goal_conversion_rate_all_goals_yoy,
 	null as bounce_rate_yoy,
-	null as avg_seconds_on_site_yoy		
+	null as avg_seconds_on_site_yoy,
+	null as sessions_ttm,
+	null as transaction_revenue_ttm,
+	null as transactions_ttm,
+	null as goal_completions_all_goals_ttm
 	FROM {{ref('search_console_url_stats')}}
 	WINDOW w1 as (PARTITION BY date, site)
 
@@ -235,7 +243,11 @@ FROM (
 	null as total_organic_goal_completions_all_goals_yoy,
 	null as goal_conversion_rate_all_goals_yoy,
 	null as bounce_rate_yoy,
-	null as avg_seconds_on_site_yoy		
+	null as avg_seconds_on_site_yoy,
+	null as sessions_ttm,
+	null as transaction_revenue_ttm,
+	null as transactions_ttm,
+	null as goal_completions_all_goals_ttm
 	FROM {{ref('search_console_url_keyword_stats')}}
 
 	UNION ALL  
@@ -312,7 +324,11 @@ FROM (
 	sum(goal_completions_all_goals_yoy) over w1 as total_organic_goal_completions_all_goals_yoy,
 	goal_conversion_rate_all_goals_yoy,
 	bounce_rate_yoy,
-	avg_seconds_on_site_yoy		
+	avg_seconds_on_site_yoy,
+	sessions_ttm,
+	transaction_revenue_ttm,
+	transactions_ttm,
+	goal_completions_all_goals_ttm		
 	FROM {{ref('ga_stats')}}  
 	WINDOW w1 as (PARTITION BY date, site)
 ) 

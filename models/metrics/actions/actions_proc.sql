@@ -33,12 +33,12 @@ case
 	else '' end as canonical_action,
 
 case
-	when http_status_code is null and sessions_30d > 0 then 'missing from crawl, orphaned page (no internal links)'
-	when http_status_code is null and sessions_30d = 0 then 'page likely removed'
+	when http_status_code is null and sessions_ttm > 0 then 'missing from crawl, orphaned page (no internal links)'
+	when http_status_code is null and sessions_30d = 0 then 'page likely removed, missing from crawl and 0 traffic this month'
 	-- when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
 	-- when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
 	-- when last_subfolder_sessions_30d = 0 then concat('block crawl to: ', last_subfolder)
-	when sessions_30d = 0 and canonical_status != 'canonicalized' then 'potential noindex, review content for relevance'
+	when sessions_ttm = 0 and canonical_status != 'canonicalized' then 'potential noindex, review content for relevance'
 	else '' end as crawl_action,		
 
 -- review page_type classification algo
@@ -191,6 +191,10 @@ goal_completions_all_goals_yoy,
 goal_completions_all_goals_yoy_pct,
 goal_conversion_rate_all_goals_yoy_pct,
 total_organic_goal_conversion_rate_yoy_pct,
+sessions_ttm,
+transaction_revenue_ttm,
+transactions_ttm,
+goal_completions_all_goals_ttm,
 gaining_traffic_mom,
 gaining_traffic_yoy,
 backlink_count,
