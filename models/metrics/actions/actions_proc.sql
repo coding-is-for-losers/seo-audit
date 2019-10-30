@@ -28,9 +28,9 @@ case
 
 case 
 	when http_status_code in (301, 404) then ''
-	when canonical_status = 'missing_canonical' and flag_paginated = 0 then 'missing canonical'
-	when canonical_status = 'canonicalized' and flag_paginated = 0 then 'canonicalized, leave as is'
-	when canonical_status = 'canonicalized' and flag_paginated = 1 then 'paginated, remove canonical if possible'
+	when canonical_status = 'missing_canonical' then 'missing canonical'
+	when canonical_status = 'canonicalized' and flag_paginated = 1 and is_self_canonical = FALSE then 'self-canonicalize, paginated page'
+	when canonical_status = 'canonicalized' then 'canonicalized, leave as is'
 	else '' end as canonical_action,
 
 case
