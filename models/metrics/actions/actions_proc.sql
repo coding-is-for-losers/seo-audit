@@ -28,8 +28,9 @@ case
 
 case 
 	when http_status_code in (301, 404) then ''
-	when canonical_status = 'missing_canonical' then 'missing canonical'
-	when canonical_status = 'canonicalized' then 'canonicalized, leave as is'
+	when canonical_status = 'missing_canonical' and flag_paginated = 0 then 'missing canonical'
+	when canonical_status = 'canonicalized' and flag_paginated = 0 then 'canonicalized, leave as is'
+	when canonical_status = 'canonicalized' and flag_paginated = 1 then 'paginated, remove canonical if possible'
 	else '' end as canonical_action,
 
 case
@@ -38,7 +39,7 @@ case
 	-- when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
 	-- when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
 	-- when last_subfolder_sessions_30d = 0 then concat('block crawl to: ', last_subfolder)
-	when sessions_ttm = 0 and canonical_status != 'canonicalized' and is_noindex = 0 and flag_paginated = 0 then 'potential noindex, review content for relevance'
+	when sessions_ttm < 45 and sessions_30d = 0 and canonical_status != 'canonicalized' and is_noindex = 0 and flag_paginated = 0 then 'potential noindex, review content for relevance'
 	else '' end as crawl_action,		
 
 -- review page_type classification algo
