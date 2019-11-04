@@ -206,10 +206,10 @@ FROM (
 	null as goal_conversion_rate_all_goals_yoy,
 	null as bounce_rate_yoy,
 	null as avg_seconds_on_site_yoy,
-	case when unix_date > unix_ttm_date then sessions else 0 end as sessions_ttm,
-	case when unix_date > unix_ttm_date then transaction_revenue else 0 end as transaction_revenue_ttm,
-	case when unix_date > unix_ttm_date then transactions else 0 end as transactions_ttm,
-	case when unix_date > unix_ttm_date then goal_completions_all_goals else 0 end as goal_completions_all_goals_ttm
+	case when unix_date > unix_yoy_date then sessions else 0 end as sessions_ttm,
+	case when unix_date > unix_yoy_date then transaction_revenue else 0 end as transaction_revenue_ttm,
+	case when unix_date > unix_yoy_date then transactions else 0 end as transactions_ttm,
+	case when unix_date > unix_yoy_date then goal_completions_all_goals else 0 end as goal_completions_all_goals_ttm
 	FROM ga			
 )
 group by date, account, site, domain, url

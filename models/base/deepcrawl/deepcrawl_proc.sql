@@ -73,6 +73,7 @@ FROM
   b.site,
   regexp_extract(canonical_url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as domain_canonical,
   url_proc url,
+  non_html_url,
   lower(concat(trim(regexp_replace(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),r'\?.*$',''),'/'),'/')) as url_stripped,
   lower(concat(trim(replace(replace(replace(canonical_url,'www.',''),'http://',''),'https://',''),'/'),'/')) canonical_url,
   lower(concat(trim(regexp_replace(replace(replace(replace(canonical_url,'www.',''),'http://',''),'https://',''),r'\?.*$',''),'/'),'/')) canonical_url_stripped,
@@ -201,7 +202,7 @@ FROM
       SELECT 
       url,
       lower(concat(trim(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),'/'),'/')) as url_proc,
-      regexp_contains(url, '.img$|.png$|.jpg$|.css$.|js$|.pdf$') non_html_url,
+      regexp_contains(url, '.img$|.png$|.jpg$|.css$.|js$|.pdf$') as non_html_url,
       regexp_extract(url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as domain,
       canonical_url,
       crawl_datetime,
