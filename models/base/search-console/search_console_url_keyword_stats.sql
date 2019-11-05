@@ -68,8 +68,8 @@ FROM (
 		WHERE impressions >= 50
 		AND branded_flag = 0
 		AND avg_position <= 25
-		WINDOW w1 AS (PARTITION BY account, url ORDER BY impressions desc),
-		w2 AS (PARTITION BY account, url ORDER BY avg_position asc)
+		WINDOW w1 AS (PARTITION BY account, url, date ORDER BY impressions desc),
+		w2 AS (PARTITION BY account, url, date ORDER BY avg_position asc)
 	) a
 	LEFT JOIN {{ ref('dates') }} b
 	ON (
@@ -78,5 +78,5 @@ FROM (
 	)
 	GROUP BY a.date, unix_date, b.unix_run_date, account, a.site, a.domain, url
 )
-WINDOW w3 as (PARTITION BY account, main_keyword ORDER BY main_clicks desc),
-w4 as (PARTITION BY account, best_keyword ORDER BY best_clicks desc)
+WINDOW w3 as (PARTITION BY account, main_keyword, date ORDER BY main_clicks desc),
+w4 as (PARTITION BY account, best_keyword, date ORDER BY best_clicks desc)
