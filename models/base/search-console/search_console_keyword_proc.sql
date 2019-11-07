@@ -43,7 +43,7 @@ FROM (
 		impressions,
 		clicks,
 		average_position
-		FROM `{{ target.project }}.wqa.gsc_keywords`
+		FROM `{{ target.project }}.{{ target.schema }}.gsc_keywords`
 		)
 	WHERE time_of_entry = lv
 	) a

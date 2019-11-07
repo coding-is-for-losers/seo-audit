@@ -12,7 +12,7 @@ FROM (
 	google_analytics_account,
 	time_of_entry,
 	first_value(time_of_entry) OVER (PARTITION BY site_name ORDER BY time_of_entry DESC) lv
-	FROM `{{ target.project }}.wqa.sites`
+	FROM `{{ target.project }}.{{ target.schema }}.sites`
 	WHERE site_name is not null
 )
 WHERE lv = time_of_entry

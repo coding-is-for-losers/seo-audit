@@ -50,7 +50,7 @@ SELECT * FROM (
                 cast(goal_completions_all_goals as int64) goal_completions_all_goals,
                 cast(bounces as int64) bounces,
                 cast(seconds_on_site as int64) seconds_on_site
-                FROM `{{ target.project }}.wqa.ga`
+                FROM `{{ target.project }}.{{ target.schema }}.ga`
                 WHERE ( sessions > 0 or transactions > 0 or goal_completions_all_goals > 0 )
                 and landing_page_path not like '%.xml%'
                 and landing_page_path != '(not set)'

@@ -294,7 +294,7 @@ FROM (
         size,
         paginated_page      
         FROM  
-        `{{ target.project }}.wqa.deepcrawl` 
+        `{{ target.project }}.{{ target.schema }}.deepcrawl` 
         WHERE url not like '%target=_blank%'
         AND ( url = primary_url OR primary_url is null )
         AND http_status_code not in (401, 403, 503)

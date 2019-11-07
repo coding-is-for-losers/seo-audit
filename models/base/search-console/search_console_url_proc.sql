@@ -23,7 +23,7 @@ FROM (
 	impressions,
 	clicks,
 	average_position
-	FROM `{{ target.project }}.wqa.gsc`
+	FROM `{{ target.project }}.{{ target.schema }}.gsc`
 	
 	) a
 LEFT JOIN {{ ref('domains_proc') }} b
