@@ -6,11 +6,8 @@ a.crawl_date,
 domain,
 domain_canonical,
 url,
-canonical_url_length,
-longest_url_length,
 url_stripped,
 canonical_url,
-canonical_url_stripped,
 canonical_status,
 url_protocol,
 canonical_url_protocol,
@@ -19,7 +16,6 @@ protocol_count,
 path_count,
 first_path,
 last_path,
-query_string,
 filename,
 last_subfolder,
 last_subfolder_canonical,
@@ -76,7 +72,7 @@ flag_form_submit,
 flag_learn_more,
 flag_info_path,
 flag_paginated,
-CASE WHEN http_status_code = 404 THEN '' 
+CASE WHEN http_status_code in (403, 404) THEN '' 
 	WHEN url = domain THEN 'homepage'
 	WHEN url like '%404%' THEN '404'
 	WHEN class_schema is not null THEN class_schema 
@@ -98,11 +94,8 @@ FROM
 	domain,
 	domain_canonical,
 	url,
-	canonical_url_length,
-	first_value(canonical_url_length) over (partition by url_stripped order by canonical_url_length desc) longest_url_length,
 	url_stripped,
 	canonical_url,
-	canonical_url_stripped,
 	canonical_status,
 	url_protocol,
 	canonical_url_protocol,
@@ -111,7 +104,6 @@ FROM
 	path_count,
 	first_path,
 	last_path,
-	query_string,
 	filename,
 	last_subfolder,
 	last_subfolder_canonical,
@@ -178,4 +170,3 @@ ON (
 	a.crawl_date = b.crawl_date AND
 	a.site = b.site
 )
-where ( canonical_url_length = longest_url_length or longest_url_length is null )

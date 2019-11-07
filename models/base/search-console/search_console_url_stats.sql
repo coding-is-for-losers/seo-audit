@@ -14,7 +14,7 @@ with gsc as (
 	clicks,
 	ctr,
 	avg_position
-	FROM {{ ref('search_console_url_proc') }} a
+	FROM {{ ref('search_console_url_proc_url_mapping') }} a
 	LEFT JOIN {{ ref('dates') }} b
 	ON (
 		a.site = b.site AND

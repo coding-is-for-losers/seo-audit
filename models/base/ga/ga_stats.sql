@@ -18,7 +18,7 @@ with ga as (
 	goal_conversion_rate_all_goals,
 	bounce_rate,
 	avg_seconds_on_site
-	FROM {{ ref('ga_proc') }} a
+	FROM {{ ref('ga_proc_url_mapping') }} a
 	LEFT JOIN {{ ref('dates') }} b
 	ON (
 		a.site = b.site AND

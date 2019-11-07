@@ -15,7 +15,7 @@ with gsc as (
 	sum(clicks) clicks,
 	CASE WHEN sum(impressions) > 0 THEN sum(clicks) / sum(impressions) END as ctr,
 	CASE WHEN sum(impressions) > 0 THEN sum(avg_position*impressions)/sum(impressions) ELSE null END as avg_position
-	FROM {{ ref('search_console_keyword_proc') }} a 
+	FROM {{ ref('search_console_keyword_proc_url_mapping') }} a 
 	LEFT JOIN {{ ref('dates') }} b
 		ON (
 			a.site = b.site AND

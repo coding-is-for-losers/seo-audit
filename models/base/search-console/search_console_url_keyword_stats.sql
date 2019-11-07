@@ -1,4 +1,4 @@
--- depends_on: {{ ref('dates') }}, {{ ref('search_console_keyword_proc')}}
+-- depends_on: {{ ref('dates') }}, {{ ref('search_console_keyword_proc_url_mapping')}}
 SELECT  
 date,
 account,
@@ -64,7 +64,7 @@ FROM (
 		first_value(impressions) OVER w2 as best_impressions,
 		first_value(clicks) OVER w2 as best_clicks,
 		first_value(avg_position) OVER w2 as best_avg_position
-		FROM {{ ref('search_console_keyword_proc') }} 
+		FROM {{ ref('search_console_keyword_proc_url_mapping') }} 
 		WHERE impressions >= 50
 		AND branded_flag = 0
 		AND avg_position <= 25

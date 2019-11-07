@@ -12,13 +12,13 @@ page_type,
 #indicative actions roll up to each other, nested one by one
 
 case
-	when http_status_code = 404 AND backlink_count > 0 AND internal_links_in_count > 0  THEN '301 redirect + remove internal link from found_at_url' 
-	when http_status_code = 404 AND backlink_count > 0 THEN '301 redirect'
-	when http_status_code = 404 THEN 'remove internal link from found_at_url'
+	when http_status_code in (403, 404) AND backlink_count > 0 AND internal_links_in_count > 0  THEN '301 redirect + remove internal link from found_at_url' 
+	when http_status_code in (403, 404) AND backlink_count > 0 THEN '301 redirect'
+	when http_status_code in (403, 404) THEN 'remove internal link from found_at_url'
 	when http_status_code = 302 THEN '301 redirect to redirected_to_url'
 	when http_status_code = 301 and lower(redirect_chain) = 'true' THEN 'fix redirect chain'
 	when http_status_code = 301 and lower(redirect_chain) = 'false' THEN 'leave 301 as is'
-	when http_status_code = 404 THEN '404, investigate'
+	when http_status_code in (403, 404) THEN '404, investigate'
 	else '' end as http_status_action,
 
 case 
@@ -27,14 +27,14 @@ case
 	else '' end as sitemap_action,
 
 case 
-	when http_status_code in (301, 404) then ''
+	when http_status_code in (301, 403, 404) then ''
 	when canonical_status = 'missing_canonical' then 'missing canonical'
 	when canonical_status = 'canonicalized' and flag_paginated = 1 and is_self_canonical = FALSE then 'self-canonicalize, paginated page'
 	when canonical_status = 'canonicalized' then 'canonicalized, leave as is'
 	else '' end as canonical_action,
 
 case
-	when http_status_code is null and sessions_ttm > 0 then 'missing from crawl, orphaned page (no internal links)'
+	when http_status_code is null and sessions_ttm > 0 then 'missing from crawl, either by lacking internal links or due to crawl error'
 	when http_status_code is null and sessions_30d = 0 and flag_paginated = 0 then 'page likely removed, missing from crawl and 0 traffic this month'
 	-- when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
 	-- when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
@@ -103,7 +103,6 @@ url_protocol,
 canonical_url_protocol,
 protocol_match,
 protocol_count,
-canonical_url_stripped,
 canonical_status,
 urls_to_canonical,
 first_subfolder,
