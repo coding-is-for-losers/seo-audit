@@ -25,7 +25,7 @@ FROM (
 	unix_date,
 	CASE WHEN b.url is not null THEN a.url
 		WHEN regexp_contains(a.url, r'^.*\/([^\/]+?\.[^\/]+)$') THEN regexp_replace(a.url, r'\?.*$', '')
-        ELSE concat(trim(regexp_replace(a.url, r'\?.*$',''),'/'),'/') END as url,
+        ELSE trim(regexp_replace(a.url, r'\?.*$',''),'/') END as url,
     keyword,
     branded_flag,
 	impressions,
