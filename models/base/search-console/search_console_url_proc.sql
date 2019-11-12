@@ -6,7 +6,7 @@ date,
 unix_date,
 date_of_entry,
 url_untrimmed,
-first_value(url_untrimmed) over (PARTITION BY site, domain, account, date, url_trimmed ORDER BY impressions desc) primary_url,
+first_value(url_untrimmed) over (PARTITION BY site, domain, account, date, url_trimmed ORDER BY impressions desc) url,
 impressions,
 clicks,
 average_position

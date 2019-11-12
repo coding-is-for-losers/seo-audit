@@ -84,4 +84,4 @@ FROM (
     )
 )
 WHERE domain = url_domain
-GROUP BY site, domain, account, date, unix_date, date_of_entry, primary_url
+GROUP BY site, domain, account, date, unix_date, date_of_entry, url
