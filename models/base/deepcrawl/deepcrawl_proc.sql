@@ -142,7 +142,7 @@ FROM (
     b.site,
     CASE WHEN url = canonical_url THEN url
       WHEN url_stripped = canonical_url_stripped AND query_string_url_first_param = query_string_canonical_url THEN canonical_url
-      WHEN http_status_code = 404 THEN url
+      -- WHEN http_status_code = 404 THEN url
       ELSE url_stripped
       END as url,
     url_stripped,
