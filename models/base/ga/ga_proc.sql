@@ -80,7 +80,7 @@ FROM (
             a.account = b.google_analytics_account
         )
         WHERE time_of_entry = lv
-        GROUP BY b.site, domain, account, month, unix_date, date_of_entry, url
+        GROUP BY b.site, domain, account, month, unix_date, date_of_entry, url_untrimmed, url_trimmed
     )
 )
 WHERE domain = url_domain
