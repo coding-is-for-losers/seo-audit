@@ -214,18 +214,20 @@ FROM (
 
         SELECT 
         lower(replace(replace(replace(url,'www.',''),'http://',''),'https://','')) as url,
-        CASE WHEN regexp_contains(url, r'^.*\/([^\/]+?\.[^\/]+)$') 
-          THEN lower(regexp_replace(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),r'\?.*$',''))
-          ELSE lower(trim(regexp_replace(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),r'\?.*$',''),'/'))
-          END as url_stripped,
+        lower(regexp_replace(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),r'\?.*$','')) as url_stripped,
+        -- CASE WHEN regexp_contains(url, r'^.*\/([^\/]+?\.[^\/]+)$') 
+        --   THEN lower(regexp_replace(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),r'\?.*$',''))
+        --   ELSE lower(regexp_replace(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),r'\?.*$',''))
+        --   END as url_stripped,
         regexp_contains(url, '.img$|.png$|.jpg$|.css$.|js$|.pdf$') as non_html_url,
         regexp_extract(url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as domain,
         regexp_extract(canonical_url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as domain_canonical,
         lower(replace(replace(replace(canonical_url,'www.',''),'http://',''),'https://','')) canonical_url,
-        CASE WHEN regexp_contains(canonical_url, r'^.*\/([^\/]+?\.[^\/]+)$') 
-          THEN lower(regexp_replace(replace(replace(replace(canonical_url,'www.',''),'http://',''),'https://',''),r'\?.*$',''))
-          ELSE lower(trim(regexp_replace(replace(replace(replace(canonical_url,'www.',''),'http://',''),'https://',''),r'\?.*$',''),'/'))
-          END as canonical_url_stripped,      
+        lower(regexp_replace(replace(replace(replace(canonical_url,'www.',''),'http://',''),'https://',''),r'\?.*$','')) as canonical_url_stripped,
+        -- CASE WHEN regexp_contains(canonical_url, r'^.*\/([^\/]+?\.[^\/]+)$') 
+        --   THEN lower(regexp_replace(replace(replace(replace(canonical_url,'www.',''),'http://',''),'https://',''),r'\?.*$',''))
+        --   ELSE lower(trim(regexp_replace(replace(replace(replace(canonical_url,'www.',''),'http://',''),'https://',''),r'\?.*$',''),'/'))
+        --   END as canonical_url_stripped,      
         ifnull(split(split(url, '?')[SAFE_ORDINAL(2)],'&')[SAFE_ORDINAL(1)], '') query_string_url_first_param,
         ifnull(split(url, '?')[SAFE_ORDINAL(2)], '') as query_string_url,
         ifnull(split(canonical_url, '?')[SAFE_ORDINAL(2)], '') as query_string_canonical_url,

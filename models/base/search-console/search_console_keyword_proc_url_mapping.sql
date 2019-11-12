@@ -24,8 +24,9 @@ FROM (
 	date,
 	unix_date,
 	CASE WHEN b.url is not null THEN a.url
-		WHEN regexp_contains(a.url, r'^.*\/([^\/]+?\.[^\/]+)$') THEN regexp_replace(a.url, r'\?.*$', '')
-        ELSE trim(regexp_replace(a.url, r'\?.*$',''),'/') END as url,
+		ELSE regexp_replace(a.url, r'\?.*$', '') END as url,
+		-- WHEN regexp_contains(a.url, r'^.*\/([^\/]+?\.[^\/]+)$') THEN regexp_replace(a.url, r'\?.*$', '')
+  --       ELSE trim(regexp_replace(a.url, r'\?.*$',''),'/') END as url,
     keyword,
     branded_flag,
 	impressions,
@@ -40,7 +41,7 @@ FROM (
     ON (
         a.date = b.report_date AND 
         a.site = b.site AND 
-        ( a.url = b.url OR trim(a.url,'/') = b.url ) 
+        a.url = b.url
     )
 )
 GROUP BY site, domain, account, date, unix_date, url, keyword, branded_flag

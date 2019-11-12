@@ -1,4 +1,18 @@
-SELECT * FROM (
+SELECT 
+site,
+domain,
+account,
+date,
+unix_date,
+date_of_entry,
+primary_url url,
+sum(sessions) sessions,
+sum(transaction_revenue) transaction_revenue,
+sum(transactions) transactions,
+sum(goal_completions_all_goals) goal_completions_all_goals,
+sum(bounces) bounces,
+sum(seconds_on_site) seconds_on_site
+FROM (
 
     SELECT
     site,
@@ -7,7 +21,8 @@ SELECT * FROM (
     date,
     unix_date,
     date_of_entry,
-    url,
+    url_untrimmed,
+    first_value(url_untrimmed) over (PARTITION BY site, domain, account, date, url_trimmed ORDER BY sessions desc) url,
     replace(regexp_extract(url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)'),'(not set)','') as url_domain,
     sessions,
     transaction_revenue,
@@ -27,7 +42,11 @@ SELECT * FROM (
         CASE WHEN regexp_contains(landing_page_path,domain) 
           THEN lower(regexp_replace(replace(replace(replace(landing_page_path,'www.',''),'http://',''),'https://',''),r'\#.*$',''))
           ELSE lower(regexp_replace(replace(replace(replace(CONCAT(a.hostname,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$',''))
-          END as url,
+          END as url_untrimmed,
+        CASE WHEN regexp_contains(landing_page_path,domain) 
+          THEN trim(lower(regexp_replace(replace(replace(replace(landing_page_path,'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/')
+          ELSE trim(lower(regexp_replace(replace(replace(replace(CONCAT(a.hostname,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/')
+          END as url_trimmed,          
         sum(sessions) sessions,
         sum(transaction_revenue) transaction_revenue,
         sum(transactions) transactions,
@@ -65,3 +84,4 @@ SELECT * FROM (
     )
 )
 WHERE domain = url_domain
+GROUP BY site, domain, account, date, unix_date, date_of_entry, primary_url
