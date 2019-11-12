@@ -31,9 +31,9 @@ FROM (
     seconds_on_site,
     bounces
     FROM {{ ref('ga_proc')}} a
-    LEFT JOIN {{ ref('deepcrawl_proc')}} b
+    LEFT JOIN {{ ref('deepcrawl_stats')}} b
     ON (
-        a.date = b.crawl_report_month AND 
+        a.date = b.report_date AND 
         a.site = b.site AND 
         a.url = b.url )
 )

@@ -67,7 +67,7 @@ FROM (
 
   SELECT
   count(distinct(url)) OVER (PARTITION by canonical_url) urls_to_canonical,
-  first_value(crawl_datetime) OVER (PARTITION BY domain, crawl_month, url ORDER BY crawl_datetime desc) latest_crawl_datetime,
+  first_value(crawl_datetime) OVER (PARTITION BY domain, crawl_month, url, canonical_url ORDER BY crawl_datetime desc) latest_crawl_datetime,
   domain,
   site,
   url,

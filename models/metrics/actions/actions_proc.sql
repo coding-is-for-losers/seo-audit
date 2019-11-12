@@ -44,7 +44,8 @@ case
 
 -- review page_type classification algo
 # push these schema classifications down into a lower proc model (and push other proc from deepcrawl up)
-case when flag_paginated = 1 then '' 
+case 
+	when http_status_code != 200 OR flag_paginated = 1 then '' 
 	when level >= 2 and schema_type not like '%breadcrumb%' then 'breadcrumb' 
 	when page_type = 'product' and schema_type not like '%product%' then 'product'
 	when page_type = 'product_category' and schema_type not like '%itemlistordertype%' then 'itemlistordertype'
@@ -70,7 +71,8 @@ CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN ''
 	WHEN http_status_code = 200 AND sessions_30d > med_sessions_30d and goal_conversion_rate_all_goals_mom_pct < total_organic_goal_conversion_rate_mom_pct THEN 'below-trend conversion rate'
 	WHEN http_status_code = 200 AND sessions_30d < 5 and transactions_30d = 0 and goal_completions_all_goals_30d = 0 and backlink_count > 0 THEN 'potential 301: low traffic, has external links'
 	WHEN http_status_code = 200 AND sessions_30d < 5 and transactions_30d = 0 and goal_completions_all_goals_30d = 0 and backlink_count = 0 THEN 'potential removal: low traffic, 0 conversions or backlinks'
-	WHEN http_status_code = 200 AND page_type = 'lead generation' and transactions_30d = 0 and goal_completions_all_goals_30d = 0 THEN 'inactive lead gen page: 0 conversions'
+	WHEN http_status_code = 200 AND page_type = 'lead generation' and transactions_30d = 0 and goal_completions_all_goals_30d = 0 
+	AND ( transactions_ttm > 0 or goal_completions_all_goals_ttm > 0 ) THEN 'inactive lead gen page: 0 conversions'
 	ELSE '' END as content_action,
 
 CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
