@@ -36,9 +36,6 @@ case
 case
 	when http_status_code is null and sessions_ttm > 0 then 'missing from crawl, either by lacking internal links or due to crawl error'
 	when http_status_code is null and sessions_30d = 0 and flag_paginated = 0 then 'page likely removed, missing from crawl and 0 traffic this month'
-	-- when first_subfolder_sessions_30d = 0 then concat('block crawl to: ', first_subfolder)
-	-- when second_subfolder_sessions_30d = 0 then concat('block crawl to: ', second_subfolder)
-	-- when last_subfolder_sessions_30d = 0 then concat('block crawl to: ', last_subfolder)
 	when sessions_ttm < 45 and sessions_30d = 0 and canonical_status != 'canonicalized' and is_noindex = 0 and flag_paginated = 0 then 'potential noindex, review content for relevance'
 	else '' end as crawl_action,		
 
@@ -99,7 +96,6 @@ CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN ''
 
 case when page_type = 'category' and flag_paginated = 0 and url_contains_digit = 1 then 'needs pagination' else '' end as pagination_action,
 
-page_type_rank,
 url_stripped,
 url_protocol,
 canonical_url_protocol,
@@ -110,9 +106,6 @@ urls_to_canonical,
 first_subfolder,
 second_subfolder,
 last_subfolder,
-first_subfolder_sessions_30d,
-second_subfolder_sessions_30d,
-last_subfolder_sessions_30d,
 last_subfolder_canonical,
 http_status_code,
 level,

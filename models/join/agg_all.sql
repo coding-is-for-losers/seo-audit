@@ -17,7 +17,6 @@ CASE
 case when found_at_sitemap is not null then 'yes' else 'no' end as in_sitemap,
 found_at_sitemap,
 page_type,
-rank() over w5 as page_type_rank,
 url_stripped,
 url_protocol,
 canonical_url_protocol,
@@ -27,11 +26,8 @@ canonical_url,
 canonical_status,
 urls_to_canonical,
 first_subfolder,
-sum(sessions_30d) OVER w2 first_subfolder_sessions_30d,
 second_subfolder,
-sum(sessions_30d) OVER w3 second_subfolder_sessions_30d,
 last_subfolder,
-sum(sessions_30d) OVER w4 last_subfolder_sessions_30d,
 last_subfolder_canonical,
 http_status_code,
 level,
@@ -197,8 +193,4 @@ FULL OUTER JOIN {{ref('deepcrawl_stats')}} b
 ON ( a.url = b.url
 	and a.site = b.site
 	and a.date = b.report_date )
-WINDOW w1 as (PARTITION BY b.domain, date),
-w2 as (PARTITION BY b.domain, crawl_date, first_subfolder),
-w3 as (PARTITION BY b.domain, crawl_date, second_subfolder),
-w4 as (PARTITION BY b.domain, crawl_date, last_subfolder),
-w5 as (PARTITION BY b.domain, crawl_date, page_type ORDER BY sessions_30d desc)
+WINDOW w1 as (PARTITION BY b.domain, date)
