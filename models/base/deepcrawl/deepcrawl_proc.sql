@@ -2,11 +2,11 @@ SELECT
 domain,
 site,
 url,
-max(crawl_datetime) crawl_datetime,
-max(crawl_date) crawl_date,
+crawl_datetime,
+crawl_date,
 crawl_month,
 crawl_report_month,
-max(latest_crawl_datetime) latest_crawl_datetime,
+latest_crawl_datetime,
 max(domain_canonical) domain_canonical,
 max(url_stripped) url_stripped,
 max(canonical_url) canonical_url,
@@ -142,6 +142,7 @@ FROM (
     b.site,
     CASE WHEN url = canonical_url THEN url
       WHEN url_stripped = canonical_url_stripped AND query_string_url_first_param = query_string_canonical_url THEN canonical_url
+      WHEN query_string_url_first_param is not null THEN null
       -- WHEN http_status_code = 404 THEN url
       ELSE url_stripped
       END as url,
@@ -308,7 +309,7 @@ FROM (
      )
     WHERE self_redirect = 0 
     AND non_html_url = false
+    AND url is not null
 )
 WHERE latest_crawl_datetime = crawl_datetime
-GROUP BY domain, site, url, crawl_month, crawl_report_month
--- crawl_date, latest_crawl_datetime, crawl_datetime
+GROUP BY domain, site, url, crawl_month, crawl_report_month, crawl_date, latest_crawl_datetime, crawl_datetime
