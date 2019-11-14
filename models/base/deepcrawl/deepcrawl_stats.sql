@@ -44,7 +44,10 @@ found_at_url,
 rel_next_url,
 rel_prev_url,
 links_in_count,
+bottom_quartile_internal_links_in_count,
+top_quartile_internal_links_in_count,
 links_out_count,
+bottom_quartile_internal_links_out_count,
 external_links_count,
 internal_links_count,
 h1_tag,
@@ -127,12 +130,17 @@ FROM
 	is_self_canonical,
 	backlink_count,
 	backlink_domain_count,
+	PERCENTILE_DISC(backlink_domain_count, 0.5 IGNORE NULLS) OVER w1 AS med_ref_domain_count,
+	PERCENTILE_DISC(backlink_domain_count, 0.25 IGNORE NULLS) OVER w1 AS bottom_quartile_ref_domain_count,
 	redirected_to_url,
 	found_at_url,
 	rel_next_url,
 	rel_prev_url,
   	links_in_count,
+  	PERCENTILE_DISC(links_in_count, 0.25 IGNORE NULLS) OVER w1 AS bottom_quartile_internal_links_in_count,
+	PERCENTILE_DISC(links_in_count, 0.75 IGNORE NULLS) OVER w1 AS top_quartile_internal_links_in_count,
   	links_out_count,
+  	PERCENTILE_DISC(internal_links_count, 0.25 IGNORE NULLS) OVER w1 AS bottom_quartile_internal_links_out_count,
   	external_links_count,
   	internal_links_count,	
 	h1_tag,
@@ -164,6 +172,7 @@ FROM
 	-- (flag_reviews + flag_select_size + flag_add_to_cart + flag_above_avg_prices) as category_score,
 	-- (flag_blog_path + flag_blog_h1 + flag_high_word_count) as article_score
 	FROM {{ref('deepcrawl_url_proc')}}
+	WINDOW w1 as (PARTITION BY domain, crawl_month)
 ) a
 LEFT JOIN {{ ref('crawl_dates') }} b
 ON (
