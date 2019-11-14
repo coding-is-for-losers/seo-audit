@@ -43,7 +43,7 @@ max(best_top_url) best_top_url,
 max(best_top_url_clicks) best_top_url_clicks,
 ifnull(sum(sessions_30d), 0) sessions_30d,
 ifnull(max(total_organic_sessions_30d), 0) total_organic_sessions_30d,
-ifnull(max(bottom_quartile_sessions_30d, 0) bottom_quartile_sessions_30d
+ifnull(max(bottom_quartile_sessions_30d, 0) bottom_quartile_sessions_30d,
 ifnull(max(med_sessions_30d, 0) med_sessions_30d,
 ifnull(max(top_quartile_sessions_30d, 0) top_quartile_sessions_30d,	
 ifnull(sum(transaction_revenue_30d), 0) transaction_revenue_30d,
