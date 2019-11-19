@@ -71,7 +71,7 @@ FROM (
 
   SELECT
   count(distinct(url)) OVER (PARTITION by canonical_url) urls_to_canonical,
-  first_value(crawl_datetime) OVER (PARTITION BY domain, crawl_month, url ORDER BY crawl_datetime desc) latest_crawl_datetime,    
+  first_value(crawl_datetime) OVER (PARTITION BY domain, crawl_month, url ORDER BY is_canonicalized desc, crawl_datetime desc ) latest_crawl_datetime,    
   domain,
   site,
   url,
@@ -85,6 +85,7 @@ FROM (
   query_string_canonical_url,  
   url_protocol,
   canonical_url_protocol,
+  is_canonicalized,
   crawl_datetime,
   crawl_date,
   crawl_month,
@@ -160,6 +161,7 @@ FROM (
     query_string_canonical_url,  
     url_protocol,
     canonical_url_protocol,
+    is_canonicalized,
     crawl_datetime,
     crawl_date,
     crawl_month,
@@ -242,7 +244,10 @@ FROM (
         case when canonical_url like 'https%' then 'https' 
           when canonical_url like 'http%' then 'http'
           else 'none' end as canonical_url_protocol, 
-        crawl_datetime,
+        case 
+          when canonical_url is not null then 1
+          else 0 end as is_canonicalized,
+        crawl_datetime,  
         cast(crawl_datetime as date) crawl_date,
         DATE_TRUNC(date( crawl_datetime ), month) crawl_month,
         found_at_sitemap,
