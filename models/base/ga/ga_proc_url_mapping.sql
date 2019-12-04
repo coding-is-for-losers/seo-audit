@@ -21,7 +21,7 @@ FROM (
     a.account,
     a.date,
     unix_date,
-    CASE WHEN b.url is not null THEN a.url
+    CASE WHEN b.url is not null THEN b.url
         ELSE regexp_replace(a.url, r'\?.*$', '') END as url,
         -- WHEN regexp_contains(a.url, r'^.*\/([^\/]+?\.[^\/]+)$') THEN regexp_replace(a.url, r'\?.*$', '')
         -- ELSE trim(regexp_replace(a.url, r'\?.*$',''),'/') END as url,        
@@ -36,7 +36,7 @@ FROM (
     ON (
         a.date = b.report_date AND 
         a.site = b.site AND 
-        a.url = b.url 
+        ( a.url = b.url OR concat(a.url, '/') = b.url )
     )
 )
 GROUP BY site, domain, account, date, unix_date, url
