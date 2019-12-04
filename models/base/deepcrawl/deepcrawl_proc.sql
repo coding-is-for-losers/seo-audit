@@ -66,12 +66,14 @@
 -- max(review) review,
 -- max(size) size,
 -- max(paginated_page) paginated_page
-SELECT * 
+
+SELECT *
 FROM (
 
   SELECT
   count(distinct(url)) OVER (PARTITION by canonical_url) urls_to_canonical,
-  first_value(crawl_datetime) OVER (PARTITION BY domain, crawl_month, url ORDER BY is_canonicalized desc, crawl_datetime desc ) latest_crawl_datetime,    
+  first_value(crawl_datetime) OVER w1 as latest_crawl_datetime,    
+  first_value(query_string_url) over w1 as latest_query_string_url,
   domain,
   site,
   url,
@@ -318,9 +320,10 @@ FROM (
      )
     WHERE self_redirect = 0 
     AND non_html_url = false
-    -- AND url is not null
+    WINDOW w1 as (PARTITION BY domain, crawl_month, url ORDER BY is_canonicalized desc, crawl_datetime desc )
 )
 WHERE latest_crawl_datetime = crawl_datetime
+AND latest_query_string_url = query_string_url
 -- GROUP BY domain, site, url, crawl_month, crawl_report_month, crawl_date, latest_crawl_datetime, crawl_datetime, query_string_url_first_param,
 -- query_string_url,
 -- query_string_canonical_url
