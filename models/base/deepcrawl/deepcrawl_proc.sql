@@ -167,7 +167,7 @@ FROM (
     crawl_datetime,
     crawl_date,
     crawl_month,
-    date_sub(crawl_month, INTERVAL 1 MONTH) crawl_report_month,
+    CASE WHEN extract(DAY from crawl_date) >= 15 THEN crawl_month ELSE date_sub(crawl_month, INTERVAL 1 MONTH) END as crawl_report_month,
     found_at_sitemap,
     http_status_code,
     level,
