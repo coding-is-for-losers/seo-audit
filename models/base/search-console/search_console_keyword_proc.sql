@@ -51,6 +51,6 @@ FROM (
 	) a
 LEFT JOIN {{ ref('domains_proc') }} b
 ON (
-	a.account = b.search_console_account
+	a.url_domain = b.domain
 )
 WHERE a.url_domain = b.domain

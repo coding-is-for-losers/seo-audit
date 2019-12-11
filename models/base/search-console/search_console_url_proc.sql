@@ -30,7 +30,7 @@ FROM (
 	) a
 LEFT JOIN {{ ref('domains_proc') }} b
 ON (
-	a.account = b.search_console_account
+	a.url_domain = b.domain
 )
 WHERE time_of_entry = lv
 AND a.url_domain = b.domain
