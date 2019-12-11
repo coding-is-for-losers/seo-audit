@@ -62,6 +62,7 @@ FROM (
                 cast(time_of_entry as date) date_of_entry,
                 first_value(time_of_entry) OVER (PARTITION BY view, landing_page_path, hostname, month ORDER BY time_of_entry desc) lv,
                 replace(hostname,'www.','') hostname,
+                trim(replace(hostname,'www.',''),'/') hostname_trimmed,
                 landing_page_path,
                 cast(sessions as int64) sessions,
                 cast(transaction_revenue as int64) transaction_revenue,
@@ -77,7 +78,7 @@ FROM (
                 ) a
         LEFT JOIN {{ ref('domains_proc') }} b
         ON (
-            a.account = b.google_analytics_account
+            a.hostname_trimmed = b.domain
         )
         WHERE time_of_entry = lv
         GROUP BY b.site, domain, account, month, unix_date, date_of_entry, url_untrimmed, url_trimmed
