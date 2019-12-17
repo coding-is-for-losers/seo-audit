@@ -71,6 +71,8 @@ SELECT *
 FROM (
 
   SELECT
+  crawl_id,
+  first_value(crawl_id) over w2 as latest_crawl_id,
   count(distinct(url)) OVER (PARTITION by canonical_url) urls_to_canonical,
   first_value(crawl_datetime) OVER w1 as latest_crawl_datetime,    
   first_value(query_string_url) over w1 as latest_query_string_url,
@@ -145,6 +147,7 @@ FROM (
   FROM 
   (
     SELECT 
+    crawl_id,
     a.domain,
     b.site,
     CASE WHEN url = canonical_url THEN url
@@ -167,7 +170,7 @@ FROM (
     crawl_datetime,
     crawl_date,
     crawl_month,
-    CASE WHEN extract(DAY from crawl_date) >= 15 THEN crawl_month ELSE date_sub(crawl_month, INTERVAL 1 MONTH) END as crawl_report_month,
+    CASE WHEN extract(DAY from crawl_date) >= 25 THEN crawl_month ELSE date_sub(crawl_month, INTERVAL 1 MONTH) END as crawl_report_month,
     found_at_sitemap,
     http_status_code,
     level,
@@ -222,6 +225,7 @@ FROM (
     ( 
 
         SELECT 
+        crawl_id,
         lower(replace(replace(replace(url,'www.',''),'http://',''),'https://','')) as url,
         lower(regexp_replace(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),r'\?.*$','')) as url_stripped,
         -- CASE WHEN regexp_contains(url, r'^.*\/([^\/]+?\.[^\/]+)$') 
@@ -320,10 +324,82 @@ FROM (
      )
     WHERE self_redirect = 0 
     AND non_html_url = false
-    WINDOW w1 as (PARTITION BY domain, crawl_month, url ORDER BY is_canonicalized desc, crawl_datetime desc )
+    WINDOW w1 as (PARTITION BY domain, crawl_month, url ORDER BY is_canonicalized desc, crawl_datetime desc ),
+    w2 as (PARTITION BY domain, crawl_report_month ORDER BY crawl_id desc )
 )
 WHERE latest_crawl_datetime = crawl_datetime
+AND latest_crawl_id = crawl_id
 AND latest_query_string_url = query_string_url
--- GROUP BY domain, site, url, crawl_month, crawl_report_month, crawl_date, latest_crawl_datetime, crawl_datetime, query_string_url_first_param,
--- query_string_url,
--- query_string_canonical_url
+GROUP BY   crawl_id,
+  latest_crawl_id,
+  urls_to_canonical,
+  latest_crawl_datetime,    
+  latest_query_string_url,
+  domain,
+  site,
+  url,
+  url_stripped,
+  non_html_url,
+  domain_canonical,
+  canonical_url,
+  canonical_url_stripped,
+  query_string_url_first_param,
+  query_string_url,
+  query_string_canonical_url,  
+  url_protocol,
+  canonical_url_protocol,
+  is_canonicalized,
+  crawl_datetime,
+  crawl_date,
+  crawl_month,
+  crawl_report_month,
+  found_at_sitemap,
+  http_status_code,
+  level,
+  schema_type,
+  header_content_type,
+  word_count, 
+  page_title,
+  page_title_length,
+  description,
+  description_length,
+  indexable,
+  robots_noindex,
+  meta_noindex,
+  is_self_canonical,
+  backlink_count,
+  backlink_domain_count,
+  redirected_to_url,
+  self_redirect,
+  found_at_url,
+  rel_next_url,
+  rel_prev_url,
+  links_in_count,
+  links_out_count,
+  external_links_count,
+  internal_links_count,
+  h1_tag,
+  h2_tag,
+  redirect_chain,
+  redirected_to_status_code,
+  is_redirect_loop,
+  duplicate_page,
+  duplicate_page_count,
+  duplicate_body,
+  duplicate_body_count,
+  qt_dec_price,
+  qt_cur_price,
+  qt_add_to_cart,
+  qt_google_maps,
+  qt_learn_more,
+  qt_reviews,
+  qt_size,
+  qt_form_submit,
+  qt_infinite_scroll,
+  decimal_price,
+  currency_price,
+  add_to_cart,
+  learn_more,
+  review,
+  size,
+  paginated_page

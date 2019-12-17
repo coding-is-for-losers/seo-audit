@@ -1,4 +1,5 @@
 SELECT 
+a.crawl_id,
 a.site,
 b.run_date report_date,
 a.crawl_datetime,
@@ -91,6 +92,7 @@ CASE WHEN http_status_code in (403, 404) THEN ''
 FROM 
 (
 	SELECT 
+	crawl_id,
 	site,
 	crawl_datetime,
 	crawl_date,
@@ -178,6 +180,6 @@ FROM
 ) a
 LEFT JOIN {{ ref('crawl_dates') }} b
 ON (
-	a.crawl_date = b.crawl_date AND
+	a.crawl_id = b.crawl_id AND
 	a.site = b.site
 )

@@ -1,4 +1,5 @@
 select
+crawl_id,
 site,
 domain,
 domain_canonical,
@@ -90,6 +91,7 @@ case when rel_next_url is not null or rel_prev_url is not null or paginated_page
 FROM 
  (
   SELECT
+  crawl_id,
   site,
   domain,
   domain_canonical,
