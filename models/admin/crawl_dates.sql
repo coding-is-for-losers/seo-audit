@@ -19,12 +19,12 @@ FROM (
   site,
   run_date,
   CASE WHEN crawl_id is not null THEN crawl_id
-    WHEN crawl_id_before_run_date is not null THEN crawl_id_before_run_date
-    WHEN crawl_id_after_run_date is not null THEN crawl_id_after_run_date  
+    WHEN crawl_id_pre_run_date is not null THEN crawl_id_pre_run_date
+    WHEN crawl_id_post_run_date is not null THEN crawl_id_post_run_date  
     ELSE null END as crawl_id,
   CASE WHEN crawl_report_month is not null THEN crawl_report_month
-    WHEN crawl_report_month_before_run_date is not null THEN crawl_report_month_before_run_date
-    WHEN crawl_report_month_after_run_date is not null THEN crawl_report_month_after_run_date  
+    WHEN crawl_report_month_pre_run_date is not null THEN crawl_report_month_pre_run_date
+    WHEN crawl_report_month_post_run_date is not null THEN crawl_report_month_post_run_date  
     ELSE null END as crawl_report_month
   FROM (
       SELECT
