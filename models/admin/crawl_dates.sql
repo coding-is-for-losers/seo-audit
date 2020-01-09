@@ -11,8 +11,8 @@ with deepcrawl as (
 SELECT
 site,
 run_date,
-min(crawl_id) crawl_id,
-min(crawl_report_month) crawl_report_month
+max(crawl_id) crawl_id,
+max(crawl_report_month) crawl_report_month
 FROM (
 
   SELECT

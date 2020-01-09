@@ -324,7 +324,7 @@ FROM (
      )
     WHERE self_redirect = 0 
     AND non_html_url = false
-    WINDOW w1 as (PARTITION BY domain, crawl_month, url ORDER BY is_canonicalized desc, crawl_datetime desc ),
+    WINDOW w1 as (PARTITION BY domain, crawl_month, url ORDER BY found_at_sitemap desc, is_canonicalized desc, crawl_datetime desc ),
     w2 as (PARTITION BY domain, crawl_report_month ORDER BY crawl_id desc )
 )
 WHERE latest_crawl_datetime = crawl_datetime
