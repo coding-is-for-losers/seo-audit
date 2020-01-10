@@ -1,59 +1,55 @@
 with deepcrawl as (
 
-		SELECT
-		site,
-		crawl_id,
-		crawl_report_month
-		FROM {{ ref('deepcrawl_proc') }}
-    GROUP BY site, crawl_id, crawl_report_month
+SELECT
+    site,
+    crawl_id,
+    lag(crawl_id) over w1 previous_crawl_id,
+    lead(crawl_id) over w1 next_crawl_id,
+    crawl_report_month
+    FROM (
+      SELECT
+      site,
+      crawl_id,
+      crawl_report_month
+      FROM {{ ref('deepcrawl_proc') }}
+      GROUP BY site, crawl_id, crawl_report_month
+    )
+    WINDOW w1 as (PARTITION BY site ORDER BY crawl_id asc)
 )
 
 SELECT
 site,
 run_date,
-max(crawl_id) crawl_id,
-max(crawl_report_month) crawl_report_month
+max(crawl_id_proc) crawl_id,
+max(crawl_report_month_proc) crawl_report_month
 FROM (
 
   SELECT
   site,
   run_date,
-  CASE WHEN crawl_id is not null THEN crawl_id
-    WHEN crawl_id_pre_run_date is not null THEN crawl_id_pre_run_date
-    WHEN crawl_id_post_run_date is not null THEN crawl_id_post_run_date  
-    ELSE null END as crawl_id,
-  CASE WHEN crawl_report_month is not null THEN crawl_report_month
-    WHEN crawl_report_month_pre_run_date is not null THEN crawl_report_month_pre_run_date
-    WHEN crawl_report_month_post_run_date is not null THEN crawl_report_month_post_run_date  
-    ELSE null END as crawl_report_month
+  crawl_report_month,
+  CASE WHEN run_date = crawl_report_month THEN crawl_id
+    WHEN crawl_report_month < run_date THEN crawl_id
+    WHEN crawl_report_month > run_date and previous_crawl_id is null THEN crawl_id
+    ELSE null END as crawl_id_proc,
+  CASE WHEN run_date = crawl_report_month THEN crawl_report_month
+    WHEN crawl_report_month < run_date THEN crawl_report_month
+    WHEN crawl_report_month > run_date and previous_crawl_id is null THEN crawl_report_month
+    ELSE null END as crawl_report_month_proc
   FROM (
-      SELECT
-      a.site,
-      a.run_date,
-      b.crawl_id,
-      b.crawl_report_month,
-      c.crawl_id crawl_id_pre_run_date,
-      c.crawl_report_month crawl_report_month_pre_run_date,
-      d.crawl_id crawl_id_post_run_date,
-      d.crawl_report_month crawl_report_month_post_run_date
-      FROM {{ ref('dates') }} a
-      LEFT JOIN deepcrawl b
-      ON (
-        a.site = b.site and
-        a.run_date = b.crawl_report_month
-      )
-      LEFT JOIN deepcrawl c
-      ON (
-        a.site = c.site and
-        a.run_date > c.crawl_report_month
-      )
-      LEFT JOIN deepcrawl d
-      ON (
-        a.site = d.site and
-        a.run_date < d.crawl_report_month
-      )
+
+    SELECT
+    a.site,
+    a.run_date,
+    b.crawl_id,
+    b.previous_crawl_id,
+    b.next_crawl_id,
+    b.crawl_report_month
+    FROM {{ ref('dates')}} a
+    JOIN deepcrawl b
+    ON (
+      a.site = b.site
     )
+  )
 )
 GROUP BY site, run_date
-ORDER BY run_date desc
-  
