@@ -22,7 +22,7 @@ with ga as (
 	LEFT JOIN {{ ref('dates') }} b
 	ON (
 		a.site = b.site AND
-		( a.unix_date = b.unix_run_date OR a.unix_date = b.unix_mom_date OR a.unix_date = b.unix_yoy_date )
+		( a.unix_date = b.unix_run_date OR a.unix_date = b.unix_mom_date OR a.unix_date >= b.unix_yoy_date )
 	)
 )
 
@@ -59,7 +59,11 @@ max(avg_seconds_on_site_yoy) as avg_seconds_on_site_yoy,
 sum(sessions_ttm) as sessions_ttm,
 sum(transaction_revenue_ttm) transaction_revenue_ttm,
 sum(transactions_ttm) as transactions_ttm,
+max(ecommerce_conversion_rate_ttm) as ecommerce_conversion_rate_ttm,
 sum(goal_completions_all_goals_ttm) as goal_completions_all_goals_ttm,
+max(goal_conversion_rate_all_goals_ttm) as goal_conversion_rate_all_goals_ttm,
+max(bounce_rate_ttm) bounce_rate_ttm,
+max(avg_seconds_on_site_ttm) as avg_seconds_on_site_ttm,
 CASE WHEN sum(transactions_30d) > 0 THEN sum(transactions_30d)
 		ELSE sum(goal_completions_all_goals_30d) END as blended_conversions_30d,
 CASE WHEN max(ecommerce_conversion_rate_30d) > 0 THEN max(ecommerce_conversion_rate_30d)
@@ -99,7 +103,11 @@ FROM (
 	null as sessions_ttm,
 	null as transaction_revenue_ttm,
 	null as transactions_ttm,
-	null as goal_completions_all_goals_ttm
+	null as ecommerce_conversion_rate_ttm,
+	null as goal_completions_all_goals_ttm,
+	null as goal_conversion_rate_all_goals_ttm,
+	null as bounce_rate_ttm,
+	null as avg_seconds_on_site_ttm
 	FROM ga
 
 	UNION ALL	
@@ -137,7 +145,11 @@ FROM (
 	null as sessions_ttm,
 	null as transaction_revenue_ttm,
 	null as transactions_ttm,
-	null as goal_completions_all_goals_ttm
+	null as ecommerce_conversion_rate_ttm,
+	null as goal_completions_all_goals_ttm,
+	null as goal_conversion_rate_all_goals_ttm,
+	null as bounce_rate_ttm,
+	null as avg_seconds_on_site_ttm
 	FROM ga	
 
 	UNION ALL
@@ -175,7 +187,11 @@ FROM (
 	null as sessions_ttm,
 	null as transaction_revenue_ttm,
 	null as transactions_ttm,
-	null as goal_completions_all_goals_ttm
+	null as ecommerce_conversion_rate_ttm,
+	null as goal_completions_all_goals_ttm,
+	null as goal_conversion_rate_all_goals_ttm,
+	null as bounce_rate_ttm,
+	null as avg_seconds_on_site_ttm
 	FROM ga		
 
 	UNION ALL
@@ -213,7 +229,11 @@ FROM (
 	case when unix_date > unix_yoy_date then sessions else 0 end as sessions_ttm,
 	case when unix_date > unix_yoy_date then transaction_revenue else 0 end as transaction_revenue_ttm,
 	case when unix_date > unix_yoy_date then transactions else 0 end as transactions_ttm,
-	case when unix_date > unix_yoy_date then goal_completions_all_goals else 0 end as goal_completions_all_goals_ttm
+	case when unix_date > unix_yoy_date then ecommerce_conversion_rate else 0 end as ecommerce_conversion_rate_ttm,
+	case when unix_date > unix_yoy_date then goal_completions_all_goals else 0 end as goal_completions_all_goals_ttm,
+	case when unix_date > unix_yoy_date then goal_conversion_rate_all_goals else 0 end as goal_conversion_rate_all_goals_ttm,
+	case when unix_date > unix_yoy_date then bounce_rate else 0 end as bounce_rate_ttm,
+	case when unix_date > unix_yoy_date then avg_seconds_on_site else 0 end as avg_seconds_on_site_ttm
 	FROM ga			
 )
 group by date, account, site, domain, url

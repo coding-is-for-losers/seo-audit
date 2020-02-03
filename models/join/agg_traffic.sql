@@ -25,6 +25,10 @@ ifnull(max(total_clicks_yoy), 0) total_clicks_yoy,
 ifnull(max(ctr_yoy), 0) ctr_yoy,
 ifnull(CASE WHEN max(total_impressions_yoy) > 0 THEN max(total_clicks_yoy) / max(total_impressions_yoy) ELSE null END, 0) as total_ctr_yoy,
 ifnull(max(avg_position_yoy), 0) avg_position_yoy,
+ifnull(sum(impressions_ttm), 0) impressions_ttm,
+ifnull(sum(clicks_ttm), 0) clicks_ttm,
+ifnull(max(ctr_ttm), 0) ctr_ttm,
+ifnull(max(avg_position_ttm), 0) avg_position_ttm,
 ifnull(sum(top_3_keywords), 0) top_3_keywords,
 ifnull(sum(top_5_keywords), 0) top_5_keywords,
 ifnull(sum(top_10_keywords), 0) top_10_keywords,
@@ -96,7 +100,11 @@ ifnull(max(avg_seconds_on_site_yoy), 0) avg_seconds_on_site_yoy,
 ifnull(sum(sessions_ttm), 0) sessions_ttm,
 ifnull(sum(transaction_revenue_ttm), 0) transaction_revenue_ttm,
 ifnull(sum(transactions_ttm), 0) transactions_ttm,
-ifnull(sum(goal_completions_all_goals_ttm), 0) goal_completions_all_goals_ttm
+ifnull(max(ecommerce_conversion_rate_ttm), 0) ecommerce_conversion_rate_ttm,
+ifnull(sum(goal_completions_all_goals_ttm), 0) goal_completions_all_goals_ttm,
+ifnull(max(goal_conversion_rate_all_goals_ttm), 0) goal_conversion_rate_all_goals_ttm,
+ifnull(max(bounce_rate_ttm), 0) bounce_rate_ttm,
+ifnull(max(avg_seconds_on_site_ttm), 0) avg_seconds_on_site_ttm
 FROM (
 
 	SELECT 
@@ -124,6 +132,10 @@ FROM (
 	sum(clicks_yoy) over w1 as total_clicks_yoy,
 	ctr_yoy,	
 	avg_position_yoy,	
+	impressions_ttm,
+	clicks_ttm,
+	ctr_ttm,	
+	avg_position_ttm,		
 	null as top_3_keywords,
 	null as top_5_keywords,
 	null as top_10_keywords,
@@ -189,7 +201,11 @@ FROM (
 	null as sessions_ttm,
 	null as transaction_revenue_ttm,
 	null as transactions_ttm,
-	null as goal_completions_all_goals_ttm
+	null as ecommerce_conversion_rate_ttm,
+	null as goal_completions_all_goals_ttm,
+	null as goal_conversion_rate_all_goals_ttm,
+	null as bounce_rate_ttm,
+	null as avg_seconds_on_site_ttm
 	FROM {{ref('search_console_url_stats')}}
 	WINDOW w1 as (PARTITION BY date, site)
 
@@ -220,6 +236,10 @@ FROM (
 	null as total_clicks_yoy,
 	null as ctr_yoy,
 	null as avg_position_yoy,		
+	null as impressions_ttm,
+	null as clicks_ttm,
+	null as ctr_ttm,
+	null as avg_position_ttm,			
 	top_3_keywords,
 	top_5_keywords,
 	top_10_keywords,
@@ -285,7 +305,11 @@ FROM (
 	null as sessions_ttm,
 	null as transaction_revenue_ttm,
 	null as transactions_ttm,
-	null as goal_completions_all_goals_ttm
+	null as ecommerce_conversion_rate_ttm,
+	null as goal_completions_all_goals_ttm,
+	null as goal_conversion_rate_all_goals_ttm,
+	null as bounce_rate_ttm,
+	null as avg_seconds_on_site_ttm
 	FROM {{ref('search_console_url_keyword_stats')}}
 
 	UNION ALL  
@@ -315,6 +339,10 @@ FROM (
 	null as total_clicks_yoy,
 	null as ctr_yoy,
 	null as avg_position_yoy,		
+	null as impressions_ttm,
+	null as clicks_ttm,
+	null as ctr_ttm,
+	null as avg_position_ttm,			
 	null as top_3_keywords,
 	null as top_5_keywords,
 	null as top_10_keywords,
@@ -380,7 +408,11 @@ FROM (
 	sessions_ttm,
 	transaction_revenue_ttm,
 	transactions_ttm,
-	goal_completions_all_goals_ttm		
+	ecommerce_conversion_rate_ttm,
+	goal_completions_all_goals_ttm,
+	goal_conversion_rate_all_goals_ttm,
+	bounce_rate_ttm,
+	avg_seconds_on_site_ttm
 	FROM {{ref('ga_stats')}}  
 	WINDOW w1 as (PARTITION BY date, site)
 ) 
