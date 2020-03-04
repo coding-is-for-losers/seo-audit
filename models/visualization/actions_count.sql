@@ -60,18 +60,6 @@ FROM (
 	SELECT
 	date,
 	site,
-	'On-page' as action_type,
-	pagination_action as action,
-	url,
-	pct_of_organic_sessions_30d
-	FROM {{ ref('actions_hierarchy') }}
-	WHERE pagination_action != '' AND pagination_action is not null		
-
-	UNION ALL	
-
-	SELECT
-	date,
-	site,
 	'Off-page' as action_type,
 	external_link_action as action,
 	url,
