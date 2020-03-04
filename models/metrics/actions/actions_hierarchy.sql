@@ -16,6 +16,7 @@ CASE
 	WHEN lower(http_status_action) like '%redirect%' THEN 'High'
 	WHEN lower(crawl_action) like '%missing from crawl%' THEN 'High'
 	WHEN lower(crawl_action) like '%potential noindex%' THEN 'Medium'	
+	WHEN lower(http_status_action) like '%remove internal link%' THEN 'High'	
 	WHEN lower(sitemap_action) like '%remove from sitemap%' or ( lower(sitemap_action) = 'likely add to sitemap' and pct_of_organic_sessions_30d > .05 )  THEN 'High'
 	WHEN lower(sitemap_action) = 'likely add to sitemap' THEN 'Medium'
 	WHEN lower(canonical_action) in ('missing canonical', 'self-canonicalize, paginated page') THEN 'High'
@@ -57,8 +58,15 @@ canonical_action,
 CASE WHEN canonical_action in ('missing canonical', 'self-canonicalize, paginated page') THEN 'High' ELSE '' END as canonical_action_priority,
 schema_action,
 -- concat(content_action,meta_rewrite_action,pagination_action,external_link_action,schema_action) on_off_page_action,
-concat(content_action,meta_rewrite_action,external_link_action,schema_action) on_off_page_action,
-concat(internal_link_action, category_action, cannibalization_action) as architecture_action,
+concat(
+	CASE WHEN content_action = '' THEN '' ELSE concat("content_action: ", content_action) END,
+	CASE WHEN meta_rewrite_action = '' THEN '' ELSE concat("meta_rewrite_action: ", meta_rewrite_action) END,
+	CASE WHEN external_link_action = '' THEN '' ELSE concat("external_link_action: ", external_link_action) END,
+	CASE WHEN schema_action = '' THEN '' ELSE concat("schema_action: ", schema_action) END ) on_off_page_action,
+concat(
+	CASE WHEN internal_link_action = '' THEN '' ELSE concat("internal_link_action: ", internal_link_action) END,
+	CASE WHEN category_action = '' THEN '' ELSE concat("category_action: ", category_action) END,
+	CASE WHEN cannibalization_action = '' THEN '' ELSE concat("cannibalization_action: ", cannibalization_action) END ) architecture_action,
 # analytics actions are separate from indicative actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 cannibalization_action,
 content_action,

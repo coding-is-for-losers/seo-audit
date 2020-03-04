@@ -5,7 +5,9 @@ site,
 domain,
 url,
 http_status_code,
+level,
 found_at,
+found_at_url,
 found_at_sitemap,
 found_at_sitemap_prev,
 CASE WHEN found_at_sitemap != found_at_sitemap_prev THEN 'Modified' ELSE 'No change' END as sitemap_diff,
@@ -71,6 +73,8 @@ CASE WHEN schema_action_prev != '' and schema_action = '' THEN 'Fixed'
 	WHEN schema_action_prev != '' and schema_action != '' and schema_action_prev != schema_action THEN 'Changed' 
 	WHEN schema_action_prev = schema_action and schema_action != '' THEN 'Recurring' 
 	ELSE 'None' END as schema_action_diff,
+on_off_page_action,
+architecture_action,
 cannibalization_action,
 cannibalization_action_prev,
 CASE WHEN cannibalization_action_prev != '' and cannibalization_action = '' THEN 'Fixed'
@@ -113,6 +117,15 @@ CASE WHEN is_noindex != is_noindex_prev THEN 1 ELSE 0 END as is_noindex_diff,
 redirected_to_url,
 redirected_to_url_prev,
 CASE WHEN redirected_to_url != redirected_to_url_prev THEN 1 ELSE 0 END as redirect_diff,
+-- schema changes
+
+schema_type,
+schema_type_prev,
+schema_type_first,
+CASE WHEN schema_type != schema_type_prev THEN 'Modified schema'
+	ELSE 'No change' END as schema_type_diff, 
+CASE WHEN schema_type != schema_type_first THEN 'Modified schema'
+	ELSE 'No change' END as schema_type_diff_first, 	
 
 -- meta changes
 page_title,
@@ -249,16 +262,19 @@ impressions_30d,
 clicks_30d,
 avg_position_30d,
 main_keyword,
+main_top_url,
 main_impressions,
 main_clicks,
 main_avg_position,
 best_keyword,
+best_top_url,
 best_impressions,
 best_clicks,
 best_avg_position,
 impressions_mom_pct,
 ctr_mom_pct,
-sessions_mom_pct
+sessions_mom_pct,
+sessions_yoy_pct
 FROM (
 	SELECT
 	date,
@@ -275,6 +291,11 @@ FROM (
 	canonical_action_priority,
 	found_at,
 	found_at_sitemap,
+	found_at_url,
+	level,
+	schema_type,
+	lag(schema_type) over w1 as schema_type_prev,
+	first_value(schema_type) over w1 as schema_type_first,
 	lag(found_at_sitemap) over w1 as found_at_sitemap_prev,
 	first_value(found_at_sitemap) over w1 as found_at_sitemap_first,
 	canonical_url,
@@ -299,6 +320,8 @@ FROM (
 	lag(canonical_action) over w1 as canonical_action_prev,
 	schema_action,
 	lag(schema_action) over w1 as schema_action_prev,
+	on_off_page_action,
+	architecture_action,
 	# analytics actions are separate from indicative actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 	cannibalization_action,
 	lag(cannibalization_action) over w1 as cannibalization_action_prev,
@@ -365,6 +388,7 @@ FROM (
 	impressions_mom_pct,
 	ctr_mom_pct,
 	sessions_mom_pct,
+	sessions_yoy_pct,
 
 	-- are analytics necessary here?
 	sessions_30d,
@@ -380,10 +404,12 @@ FROM (
 	clicks_30d,
 	avg_position_30d,
 	main_keyword,
+	main_top_url,
 	main_impressions,
 	main_clicks,
 	main_avg_position,
 	best_keyword,
+	best_top_url,
 	best_impressions,
 	best_clicks,
 	best_avg_position

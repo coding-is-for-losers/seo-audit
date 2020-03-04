@@ -35,7 +35,7 @@ case
 	else '' end as canonical_action,
 
 case
-	when http_status_code is null and sessions_ttm > 0 and url not like '%404%' and url not like '%403%' then 'Missing from crawl'
+	when http_status_code is null and sessions_ttm > 0 and url not like '%404%' and url not like '%403%' and flag_paginated = 0 then 'Missing from crawl'
 	when http_status_code is null and sessions_30d = 0 and flag_paginated = 0 then 'Page likely removed'
 	-- updated sessions_ttm threshold to 100
 	when sessions_ttm < 100 and sessions_30d = 0 and canonical_status != 'canonicalized' and is_noindex = 0 and flag_paginated = 0 then 'Review content for relevance (potential noindex)'

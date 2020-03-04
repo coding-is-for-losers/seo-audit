@@ -84,7 +84,7 @@ case
 	WHEN http_status_code in (403, 404) THEN '' 	
 	when first_path = '' then 'homepage'
   	when class_schema = 'category' then class_schema
-	when class_sitemap in ('page','none','') and class_path in ('blog','category','author','event','local','info') then class_path
+	when class_sitemap in ('page','none','') and class_path in ('blog','category','author','event','local','info','product') then class_path
 	when class_sitemap in ('page','none','') and class_schema is not null then class_schema
 	when class_sitemap != 'page' and class_sitemap is not null then class_sitemap
 	when class_path != '' then class_path
