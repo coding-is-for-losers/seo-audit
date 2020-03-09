@@ -316,6 +316,7 @@ FROM (
         WHERE url not like '%target=_blank%'
         AND ( url = primary_url OR primary_url is null )
         AND http_status_code not in (401, 403, 503)
+        AND header_content_type = 'text/html'
       ) a
     LEFT JOIN {{ ref('domains_proc') }} b
     ON (

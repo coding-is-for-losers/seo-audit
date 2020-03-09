@@ -61,17 +61,30 @@ duplicate_page,
 duplicate_page_count,
 duplicate_body,
 duplicate_body_count,
-case when found_at_sitemap like '%category%' then 'category'
+case 
+  when first_path like '%category%' then 'category'
+  when first_path like '%blog%' or first_path like '%resource%' or first_path like '%article%' then 'blog'
+  when first_path like '%product%' then 'product'
+  when first_path like '%author%' then 'author'
+  when first_path like '%location%' or first_path like '%stores%' then 'local'
+  when regexp_contains(first_path, r'sitemap|cart|disclaimer|customer-service|returns|faq|warranty|affiliate|loyalty|register|wholesale|account|wishlist|jobs|password|contact|login|signup|privacy|about') then 'info'
+  when second_path = '' or second_path is null then 'page'
+  else first_path end as class_path,
+case when found_at_sitemap is null then null
+  when found_at_sitemap like '%category%' then 'category'
   when found_at_sitemap like '%product%' then 'product'
-  when found_at_sitemap like '%post%' then 'article'
+  when found_at_sitemap like '%author%' then 'author'  
+  when found_at_sitemap like '%post%' then 'blog'
   when found_at_sitemap like '%location%' then 'local'
+  when found_at_sitemap like '%page%' then 'page'
   else null end as class_sitemap,
 case when schema_type like '%product%' then 'product'
-  when schema_type like '%collection%' then 'category'
-  when ( schema_type like '%creativework%' or schema_type like '%blog%' or schema_type like '%article%') then 'article'
+  when schema_type like '%collection%' or schema_type like '%category%' then 'category'
+  when schema_type like '%author%' then 'author'  
+  when ( schema_type like '%creativework%' or schema_type like '%blog%' or schema_type like '%article%') then 'blog'
   when schema_type like '%event%' then 'event'
   when schema_type like '%local%' or schema_type like '%place%' then 'local'
-  else null end as class_schema,  
+  else null end as class_schema,
 case when qt_google_maps > min_google_maps then 1 else 0 end as flag_google_maps,
 case when qt_cur_price > min_cur_price then 1 else 0 end as flag_prices,
 case when qt_cur_price > avg_cur_price then 1 else 0 end as flag_above_avg_prices,
