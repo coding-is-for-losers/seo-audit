@@ -749,7 +749,7 @@ automated_deepcrawl as (
     learn_more,
     review,
     size,
-    paginated_pag
+    paginated_page
 
 
 
