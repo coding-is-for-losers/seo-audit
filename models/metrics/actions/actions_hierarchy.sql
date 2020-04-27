@@ -21,41 +21,40 @@ CASE
 	WHEN lower(sitemap_action) = 'likely add to sitemap' THEN 'Medium'
 	WHEN lower(canonical_action) in ('missing canonical', 'self-canonicalize, paginated page') THEN 'High'
 	ELSE '' END as admin_action_priority,
-
 CASE WHEN impressions_30d >= top_10pct_impressions_30d THEN 'High'
 	WHEN impressions_30d >= med_impressions_30d THEN 'Medium'
-	ELSE 'Low' END as mktg_action_priority,
+	ELSE 'Low' END as mktg_action_priority,	
 case 
 	when http_status_action != '' then http_status_action
 	when crawl_action != '' then crawl_action
-	when sitemap_action not in ('leave as is', '') then sitemap_action
-	when canonical_action not in ('leave as is', '') then canonical_action
+	when lower(sitemap_action) not in ('leave as is', '') then sitemap_action
+	when lower(canonical_action) not in ('leave as is', '') then canonical_action
 	else '' end as top_admin_action,
 case 
 	when http_status_action != '' then concat(cast(http_status_code as string),' page status')
-	when http_status_code is null and crawl_action like '%missing%' then 'not crawled by deepcrawl'
-	when crawl_action like '%removed%' then 'not crawled, 0 traffic'
+	when http_status_code is null and lower(crawl_action) like '%missing%' then 'not crawled by deepcrawl'
+	when lower(crawl_action) like '%removed%' then 'not crawled, 0 traffic'
 	when crawl_action != '' then '0 traffic'
 	when lower(sitemap_action) like '%remove%' then '301, 404, noindexed or thin page'
 	when sitemap_action != '' then 'page missing from sitemap'
-	when canonical_action = 'missing canonical' then 'canonical url not found in crawl'
-	when crawl_action like 'block crawl to:%' then 'subfolder receives no traffic'
-	when crawl_action = 'noindex' then 'page receives no organic traffic'
+	when lower(canonical_action) = 'missing canonical' then 'canonical url not found in crawl'
+	when lower(crawl_action) like 'block crawl to:%' then 'subfolder receives no traffic'
+	when lower(crawl_action) = 'noindex' then 'page receives no organic traffic'
 	else '' end as top_admin_action_reason,
 crawl_action,
 CASE 
-	WHEN crawl_action like '%missing from crawl%' THEN 'High'
-	WHEN crawl_action like '%potential noindex%' THEN 'Medium'	
+	WHEN lower(crawl_action) like '%missing from crawl%' THEN 'High'
+	WHEN lower(crawl_action) like '%potential noindex%' THEN 'Medium'	
 	ELSE '' END as crawl_action_priority,
 http_status_action,
-CASE WHEN http_status_action like '%redirect%' THEN 'High' ELSE '' END as http_status_action_priority,
+CASE WHEN lower(http_status_action) like '%redirect%' THEN 'High' ELSE '' END as http_status_action_priority,
 sitemap_action,
 CASE 
-	WHEN sitemap_action like '%remove from sitemap%' or ( sitemap_action = 'likely add to sitemap' and pct_of_organic_sessions_30d > .05 )  THEN 'High'
-	WHEN sitemap_action = 'likely add to sitemap' THEN 'Medium'
+	WHEN lower(sitemap_action) like '%remove from sitemap%' or ( sitemap_action = 'likely add to sitemap' and pct_of_organic_sessions_30d > .05 )  THEN 'High'
+	WHEN lower(sitemap_action) = 'likely add to sitemap' THEN 'Medium'
 	ELSE '' END as sitemap_action_priority,
 canonical_action,
-CASE WHEN canonical_action in ('missing canonical', 'self-canonicalize, paginated page') THEN 'High' ELSE '' END as canonical_action_priority,
+CASE WHEN lower(canonical_action) in ('missing canonical', 'self-canonicalize, paginated page') THEN 'High' ELSE '' END as canonical_action_priority,
 schema_action,
 -- concat(content_action,meta_rewrite_action,pagination_action,external_link_action,schema_action) on_off_page_action,
 concat(
