@@ -36,7 +36,7 @@ case
 	when http_status_code is null and crawl_action like '%missing%' then 'not crawled by deepcrawl'
 	when crawl_action like '%removed%' then 'not crawled, 0 traffic'
 	when crawl_action != '' then '0 traffic'
-	when sitemap_action like '%remove%' then '301, 404, noindexed or thin page'
+	when lower(sitemap_action) like '%remove%' then '301, 404, noindexed or thin page'
 	when sitemap_action != '' then 'page missing from sitemap'
 	when canonical_action = 'missing canonical' then 'canonical url not found in crawl'
 	when crawl_action like 'block crawl to:%' then 'subfolder receives no traffic'
