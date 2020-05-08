@@ -7,6 +7,8 @@ FROM (
   count(distinct(url)) OVER (PARTITION by canonical_url) urls_to_canonical,
   first_value(crawl_datetime) OVER w1 as latest_crawl_datetime,    
   first_value(query_string_url) over w1 as latest_query_string_url,
+  first_value(eventid) over w1 as latest_event_id,
+  eventid,
   domain,
   site,
   url,
@@ -78,6 +80,7 @@ FROM (
   FROM 
   (
     SELECT 
+    eventid,
     crawl_id,
     a.domain,
     b.site,
@@ -155,6 +158,7 @@ FROM (
     FROM
     ( 
         SELECT 
+        EventId,
         Crawl_Id,
         lower(replace(replace(replace(Url,'www.',''),'http://',''),'https://','')) as url,
         lower(regexp_replace(replace(replace(replace(Url,'www.',''),'http://',''),'https://',''),r'\?.*$','')) as url_stripped,
@@ -252,6 +256,7 @@ FROM (
         UNION ALL
 
         SELECT 
+        1 as EventId,
         crawl_id,
         lower(replace(replace(replace(url,'www.',''),'http://',''),'https://','')) as url,
         lower(regexp_replace(replace(replace(replace(url,'www.',''),'http://',''),'https://',''),r'\?.*$','')) as url_stripped,
@@ -353,12 +358,13 @@ FROM (
     )
     WHERE self_redirect = 0 
     AND non_html_url = false
-    WINDOW w1 as (PARTITION BY domain, crawl_month, url ORDER BY found_at_sitemap desc, is_canonicalized desc, crawl_datetime desc ),
+    WINDOW w1 as (PARTITION BY domain, crawl_month, url ORDER BY found_at_sitemap desc, is_canonicalized desc, crawl_datetime desc, eventid desc ),
     w2 as (PARTITION BY domain, crawl_report_month ORDER BY crawl_id desc )
 )
 WHERE latest_crawl_datetime = crawl_datetime
 AND latest_crawl_id = crawl_id
 AND latest_query_string_url = query_string_url
+AND latest_event_id = eventid
 GROUP BY   crawl_id,
   latest_crawl_id,
   urls_to_canonical,
