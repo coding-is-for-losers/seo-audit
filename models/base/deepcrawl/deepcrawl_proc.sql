@@ -438,4 +438,5 @@ GROUP BY   crawl_id,
   review,
   size,
   paginated_page,
-  latest_event_id
+  latest_event_id,
+  eventid
