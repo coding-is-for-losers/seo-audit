@@ -23,6 +23,7 @@ case
 
 case 
 	-- added < 200 word count condition 2/26/20
+	when canonical_status = 'canonicalized' then ''
 	when (http_status_code != 200 or is_noindex = 1 or word_count < 200 ) and found_at_sitemap is not null then concat('Remove from sitemap: ', coalesce(found_at_sitemap) ) 
 	when is_noindex = 0 and found_at_sitemap is null and flag_paginated = 0 and url not like '%/page/%' and sessions_30d > 0 and http_status_code = 200 then 'Likely add to sitemap'
 	else '' end as sitemap_action,
@@ -44,7 +45,7 @@ case
 -- review page_type classification algo
 # push these schema classifications down into a lower proc model (and push other proc from deepcrawl up)
 case 
-	when http_status_code != 200 OR flag_paginated = 1 then '' 
+	when http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' then '' 
 	when level >= 2 and schema_type not like '%breadcrumb%' then 'Add breadcrumb schema' 
 	when page_type = 'product' and schema_type not like '%product%' then 'Add product schema'
 	-- when page_type = 'product_category' and schema_type not like '%itemlistordertype%' then 'Add itemlistordertype schema'
@@ -56,14 +57,14 @@ case
 
 # analytics actions are separate from other actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 
-CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized'  THEN '' 
 	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 1 AND main_keyword = best_keyword AND is_self_canonical = TRUE THEN 'Cannibalizing main keyword'
 	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 1 AND main_keyword != best_keyword AND is_self_canonical = TRUE THEN 'Cannibalizing main + best keywords'
 	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 1 AND best_keyword_cannibalization_flag = 0 AND is_self_canonical = TRUE THEN 'Cannibalizing main keyword'
 	WHEN http_status_code = 200 AND main_keyword_cannibalization_flag = 0 AND best_keyword_cannibalization_flag = 1 AND is_self_canonical = TRUE THEN 'Cannibalizing best keyword'
 	ELSE '' END as cannibalization_action,
 
-CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' THEN '' 
 	WHEN http_status_code = 200 AND sessions_mom_pct > total_organic_sessions_mom_pct and ctr_mom_pct > total_ctr_mom_pct THEN 'Rising content'
 	WHEN http_status_code = 200 AND transactions_30d > 0 and sessions_30d > med_sessions_30d and ecommerce_conversion_rate_mom_pct < total_organic_ecommerce_conversion_rate_mom_pct THEN 'Below-trend conversion rate'
 	WHEN http_status_code = 200 AND sessions_30d > med_sessions_30d and goal_conversion_rate_all_goals_mom_pct < total_organic_goal_conversion_rate_mom_pct THEN 'Below-trend conversion rate'
@@ -73,19 +74,19 @@ CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN ''
 	AND ( transactions_ttm > 0 or goal_completions_all_goals_ttm > 0 ) THEN 'inactive lead gen page: 0 conversions'
 	ELSE '' END as content_action,
 
-CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' THEN '' 
 	WHEN http_status_code = 200 AND internal_links_out_count <= bottom_quartile_internal_links_out_count and ( sessions_30d > med_sessions_30d or ref_domain_count >= med_ref_domain_count ) THEN 'Add internal outlinks'
 	WHEN http_status_code = 200 AND internal_links_in_count <= bottom_quartile_internal_links_in_count and ( sessions_30d > med_sessions_30d or ref_domain_count >= med_ref_domain_count ) THEN 'Add internal inlinks'
 	WHEN http_status_code = 200 AND internal_links_in_count >= top_quartile_internal_links_in_count and ( sessions_30d <= bottom_quartile_sessions_30d or ref_domain_count <= bottom_quartile_ref_domain_count ) THEN 'Reduce internal inlinks'
 	ELSE '' END as internal_link_action,
 
-CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' THEN '' 
 	WHEN http_status_code = 200 AND ((main_avg_position >= 3 and main_avg_position <= 25 ) or ( best_avg_position >= 3 and best_avg_position <= 25 )) THEN 'Target external links: KWs within reach'
 	WHEN http_status_code = 200 AND ( top_20_keywords - top_3_keywords ) >= 3 THEN 'Target external links: KWs within reach'
 	WHEN http_status_code = 200 AND sessions_mom_pct > total_organic_sessions_mom_pct AND ref_domain_count < med_ref_domain_count THEN 'Target external links: rising content'
 	ELSE '' END as external_link_action,
 
-CASE WHEN http_status_code != 200 OR flag_paginated = 1 THEN '' 
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' THEN '' 
 	WHEN http_status_code = 200 AND (description is null or page_title is null ) and http_status_code is not null then 'Metas missing' 
 	WHEN http_status_code = 200 AND (title_contains_top_keyword + description_contains_top_keyword) = 0 AND (best_impressions > 0 OR main_impressions > 0) then concat('Update metas to include main or best keyword') 
 	WHEN http_status_code = 200 AND impressions_mom_pct > total_impressions_mom_pct and ctr_30d < med_ctr_30d AND (best_impressions > 0 OR main_impressions > 0) THEN 'Low CTR: review meta relevance for top keywords'
