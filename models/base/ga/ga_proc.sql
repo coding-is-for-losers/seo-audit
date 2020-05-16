@@ -60,7 +60,7 @@ FROM (
                 unix_date(month) unix_date,
                 time_of_entry,
                 cast(time_of_entry as date) date_of_entry,
-                last_value(time_of_entry) OVER (PARTITION BY view, landing_page_path, hostname, month ORDER BY time_of_entry desc) lv,
+                first_value(time_of_entry) OVER (PARTITION BY view, landing_page_path, hostname, month ORDER BY time_of_entry desc) lv,
                 replace(hostname,'www.','') hostname,
                 trim(replace(hostname,'www.',''),'/') hostname_trimmed,
                 landing_page_path,
