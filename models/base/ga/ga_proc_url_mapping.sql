@@ -36,7 +36,7 @@ FROM (
     ON (
         a.date = b.report_date AND 
         a.site = b.site AND 
-        ( a.url = b.url OR concat(a.url, '/') = b.url )
+         a.url = b.url 
     )
 )
 GROUP BY site, domain, account, date, unix_date, url
