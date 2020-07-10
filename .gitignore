@@ -8,3 +8,10 @@ models/dev/.DS_Store
 models/join/.DS_Store
 models/metrics/.DS_Store
 models/visualization/.DS_Store
+target/compiled/seo_audit/models/base/deepcrawl/deepcrawl_proc.sql
+target/graph.gpickle
+target/manifest.json
+target/partial_parse.pickle
+target/run/seo_audit/models/base/deepcrawl/deepcrawl_proc.sql
+target/run_results.json
+logs/dbt.log
