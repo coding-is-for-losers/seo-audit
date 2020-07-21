@@ -88,9 +88,7 @@ FROM (
     b.site,
     CASE WHEN url = canonical_url THEN url
       WHEN url_stripped = canonical_url_stripped AND query_string_url_first_param = query_string_canonical_url THEN canonical_url
-      -- WHEN query_string_url_first_param is not null THEN null
-      -- WHEN http_status_code = 404 THEN url
-      ELSE url_stripped
+      ELSE  url_stripped
       END as url,      
     url_stripped,
     non_html_url,
@@ -103,7 +101,7 @@ FROM (
     url_protocol,
     canonical_url_protocol,
     is_canonicalized,
-    url_canonical_trailing_slash_match,
+    CASE WHEN substr(url_stripped,length(url),1) = substr(canonical_url_stripped,length(canonical_url),1) THEN 1 ELSE 0 END as url_canonical_trailing_slash_match,                    
     crawl_datetime,
     crawl_date,
     crawl_month,
@@ -190,7 +188,6 @@ FROM (
         case 
           when Canonical_Url is not null then 1
           else 0 end as is_canonicalized,
-        CASE WHEN substr(url,length(url),1) = substr(canonical_url,length(canonical_url),1) THEN 1 ELSE 0 END as url_canonical_trailing_slash_match,                    
         Crawl_Datetime as crawl_datetime,  
         cast(Crawl_Datetime as date) crawl_date,
         DATE_TRUNC(date( Crawl_Datetime ), month) crawl_month,
@@ -289,7 +286,6 @@ FROM (
         case 
           when canonical_url is not null then 1
           else 0 end as is_canonicalized,
-        CASE WHEN substr(url,length(url),1) = substr(canonical_url,length(canonical_url),1) THEN 1 ELSE 0 END as url_canonical_trailing_slash_match,          
         crawl_datetime,  
         cast(crawl_datetime as date) crawl_date,
         DATE_TRUNC(date( crawl_datetime ), month) crawl_month,
