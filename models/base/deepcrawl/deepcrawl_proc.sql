@@ -444,4 +444,4 @@ GROUP BY   crawl_id,
   latest_event_id,
   eventid,
   url_canonical_trailing_slash_match,
-  max_url_canonical_trailing_slash_match
+  max_trailing_slash_match
