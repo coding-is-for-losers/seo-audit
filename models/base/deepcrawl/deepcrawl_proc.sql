@@ -370,6 +370,7 @@ WHERE latest_crawl_datetime = crawl_datetime
 AND latest_crawl_id = crawl_id
 AND latest_query_string_url = query_string_url
 AND latest_event_id = eventid
+AND max_trailing_slash_match = url_canonical_trailing_slash_match
 GROUP BY   crawl_id,
   latest_crawl_id,
   urls_to_canonical,
