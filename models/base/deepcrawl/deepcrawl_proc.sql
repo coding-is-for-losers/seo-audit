@@ -8,6 +8,8 @@ FROM (
   first_value(crawl_datetime) OVER w1 as latest_crawl_datetime,    
   first_value(query_string_url) over w1 as latest_query_string_url,
   first_value(eventid) over w1 as latest_event_id,
+  url_canonical_trailing_slash_match,
+  max(url_canonical_trailing_slash_match) over w3 as max_trailing_slash_match,
   eventid,
   domain,
   site,
@@ -101,6 +103,7 @@ FROM (
     url_protocol,
     canonical_url_protocol,
     is_canonicalized,
+    url_canonical_trailing_slash_match,
     crawl_datetime,
     crawl_date,
     crawl_month,
@@ -187,6 +190,7 @@ FROM (
         case 
           when Canonical_Url is not null then 1
           else 0 end as is_canonicalized,
+        CASE WHEN substr(url,length(url),1) = substr(canonical_url,length(canonical_url),1) THEN 1 ELSE 0 END as url_canonical_trailing_slash_match,                    
         Crawl_Datetime as crawl_datetime,  
         cast(Crawl_Datetime as date) crawl_date,
         DATE_TRUNC(date( Crawl_Datetime ), month) crawl_month,
@@ -285,6 +289,7 @@ FROM (
         case 
           when canonical_url is not null then 1
           else 0 end as is_canonicalized,
+        CASE WHEN substr(url,length(url),1) = substr(canonical_url,length(canonical_url),1) THEN 1 ELSE 0 END as url_canonical_trailing_slash_match,          
         crawl_datetime,  
         cast(crawl_datetime as date) crawl_date,
         DATE_TRUNC(date( crawl_datetime ), month) crawl_month,
@@ -439,4 +444,6 @@ GROUP BY   crawl_id,
   size,
   paginated_page,
   latest_event_id,
-  eventid
+  eventid,
+  url_canonical_trailing_slash_match,
+  max_url_canonical_trailing_slash_match
