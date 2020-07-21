@@ -8,6 +8,8 @@ FROM (
   first_value(crawl_datetime) OVER w1 as latest_crawl_datetime,    
   first_value(query_string_url) over w1 as latest_query_string_url,
   first_value(eventid) over w1 as latest_event_id,
+  url_canonical_trailing_slash_match,
+  max(url_canonical_trailing_slash_match) over w3 as max_trailing_slash_match,
   eventid,
   domain,
   site,
@@ -86,9 +88,7 @@ FROM (
     b.site,
     CASE WHEN url = canonical_url THEN url
       WHEN url_stripped = canonical_url_stripped AND query_string_url_first_param = query_string_canonical_url THEN canonical_url
-      -- WHEN query_string_url_first_param is not null THEN null
-      -- WHEN http_status_code = 404 THEN url
-      ELSE url_stripped
+      ELSE  url_stripped
       END as url,      
     url_stripped,
     non_html_url,
@@ -101,6 +101,7 @@ FROM (
     url_protocol,
     canonical_url_protocol,
     is_canonicalized,
+    CASE WHEN substr(url_stripped,length(url),1) = substr(canonical_url_stripped,length(canonical_url),1) THEN 1 ELSE 0 END as url_canonical_trailing_slash_match,                    
     crawl_datetime,
     crawl_date,
     crawl_month,
@@ -359,12 +360,14 @@ FROM (
     WHERE self_redirect = 0 
     AND non_html_url = false
     WINDOW w1 as (PARTITION BY domain, crawl_report_month, url ORDER BY found_at_sitemap desc, is_canonicalized desc, crawl_datetime desc, eventid desc ),
-    w2 as (PARTITION BY domain, crawl_report_month ORDER BY crawl_id desc )
+    w2 as (PARTITION BY domain, crawl_report_month ORDER BY crawl_id desc ),
+    w3 as (PARTITION BY domain, crawl_id, canonical_url ORDER BY url_canonical_trailing_slash_match desc)
 )
 WHERE latest_crawl_datetime = crawl_datetime
 AND latest_crawl_id = crawl_id
 AND latest_query_string_url = query_string_url
 AND latest_event_id = eventid
+AND max_trailing_slash_match = url_canonical_trailing_slash_match
 GROUP BY   crawl_id,
   latest_crawl_id,
   urls_to_canonical,
@@ -439,4 +442,6 @@ GROUP BY   crawl_id,
   size,
   paginated_page,
   latest_event_id,
-  eventid
+  eventid,
+  url_canonical_trailing_slash_match,
+  max_url_canonical_trailing_slash_match
