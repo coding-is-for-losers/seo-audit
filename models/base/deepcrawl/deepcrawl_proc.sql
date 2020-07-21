@@ -360,7 +360,8 @@ FROM (
     WHERE self_redirect = 0 
     AND non_html_url = false
     WINDOW w1 as (PARTITION BY domain, crawl_report_month, url ORDER BY found_at_sitemap desc, is_canonicalized desc, crawl_datetime desc, eventid desc ),
-    w2 as (PARTITION BY domain, crawl_report_month ORDER BY crawl_id desc )
+    w2 as (PARTITION BY domain, crawl_report_month ORDER BY crawl_id desc ),
+    w3 as (PARTITION BY domain, crawl_id, canonical_url ORDER BY url_canonical_trailing_slash_match desc)
 )
 WHERE latest_crawl_datetime = crawl_datetime
 AND latest_crawl_id = crawl_id
