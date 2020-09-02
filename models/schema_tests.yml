@@ -1,0 +1,22 @@
+version: 2
+        
+models:        
+  - name: ga_stats
+    tests:
+      - unique:
+          column_name: "date || '-' || url"
+
+  - name: search_console_keyword_stats
+    tests:
+      - unique:
+          column_name: "CONCAT(date,'||',url,'||',keyword)"
+
+  - name: search_console_url_stats
+    tests:
+      - unique:
+          column_name: "date || '-' || url"
+
+  - name: agg_all
+    tests:
+      - unique:
+          column_name: "date || '-' || url"
