@@ -1,11 +1,3 @@
-{{ config(
-    materialized='table',
-    partition_by={
-      "field": "crawl_report_month",
-      "data_type": "date"
-      },
-    cluster_by= ["crawl_report_month", "domain"]
-)}}
 
 SELECT *
 FROM (
