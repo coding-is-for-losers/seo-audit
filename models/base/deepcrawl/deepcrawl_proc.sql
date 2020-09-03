@@ -24,6 +24,7 @@ FROM (
   is_canonicalized,
   crawl_datetime,
   max(crawl_datetime) OVER w3 as latest_crawl_datetime,  
+  first_value(query_string_url) over w4 as latest_query_string_url,
   crawl_date,
   crawl_month,
   crawl_report_month,
@@ -346,18 +347,21 @@ FROM (
   )
   WHERE max_trailing_slash_match = url_canonical_trailing_slash_match
   AND sitemap_canonicalization_score = max_sitemap_canonicalization_score
-  WINDOW w3 as (PARTITION BY domain, crawl_report_month, url)
+  WINDOW w3 as (PARTITION BY domain, crawl_report_month, url),
+  w4 as (PARTITION BY domain, crawl_report_month, url ORDER BY found_at_sitemap desc, is_canonicalized desc, crawl_datetime desc, eventid desc )
 
 ) 
 
 WHERE latest_crawl_datetime = crawl_datetime
+AND latest_query_string_url = query_string_url
 GROUP BY   
 site,
 domain,
 crawl_id,
 eventid,
 urls_to_canonical,
-latest_crawl_datetime,    
+latest_crawl_datetime,  
+latest_query_string_url,  
 site,
 url,
 url_stripped,
