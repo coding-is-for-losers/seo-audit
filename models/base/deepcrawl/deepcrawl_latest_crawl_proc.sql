@@ -123,7 +123,7 @@ FROM (
         crawl_id,
         regexp_extract(url,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as domain,
         1 as eventid,
-        crawl_datetime,  
+        cast(crawl_datetime as timestamp) crawl_datetime, 
         cast(crawl_datetime as date) crawl_date,
         DATE_TRUNC(date( crawl_datetime ), month) as crawl_month,
         CASE WHEN extract(DAY from crawl_datetime) >= 15 THEN DATE_TRUNC(date( crawl_datetime ), month) ELSE date_sub(DATE_TRUNC(date( crawl_datetime ), month), INTERVAL 1 MONTH) END as crawl_report_month,
