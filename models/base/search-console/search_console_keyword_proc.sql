@@ -27,7 +27,7 @@ FROM (
 	lower(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\#.*$','')) url_untrimmed,
 	trim(lower(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/') url_trimmed,
 	regexp_extract(landing_page,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as url_domain,
-	keyword,
+	regexp_replace(keyword, r'[^a-zA-Z]'," ") as keyword,
 	impressions,
 	clicks,
 	average_position
