@@ -64,6 +64,7 @@ ifnull(max(goal_conversion_rate_all_goals_30d), 0) goal_conversion_rate_all_goal
 ifnull(CASE WHEN max(total_organic_sessions_30d) > 0 THEN max(total_organic_goal_completions_all_goals_30d) / max(total_organic_sessions_30d) ELSE null END, 0) as total_organic_goal_conversion_rate_30d,
 ifnull(max(bounce_rate_30d), 0) bounce_rate_30d,
 ifnull(max(avg_seconds_on_site_30d), 0) avg_seconds_on_site_30d,
+ifnull(max(med_goal_conversion_rate_30d),0) med_goal_conversion_rate_30d,
 ifnull(sum(sessions_mom), 0) sessions_mom,
 ifnull(max(total_organic_sessions_mom), 0) total_organic_sessions_mom,
 ifnull(sum(transaction_revenue_mom), 0) transaction_revenue_mom,
