@@ -10,7 +10,7 @@ found_at_url,
 canonical_url,
 canonical_status,
 page_type,
-CASE WHEN sessions_30d = sessions_ttm AND sessions_30d > 0 THEN 1
+CASE WHEN sessions_30d = sessions_ttm AND sessions_30d > 0 and http_status_code=200 THEN 1
 	ELSE 0 END as new_content_flag,
 CASE 
 	WHEN lower(http_status_action) like '%redirect%' THEN 'High'

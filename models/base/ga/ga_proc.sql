@@ -41,11 +41,11 @@ FROM (
         date_of_entry,
         CASE WHEN regexp_contains(landing_page_path,domain) 
           THEN lower(regexp_replace(replace(replace(replace(landing_page_path,'www.',''),'http://',''),'https://',''),r'\#.*$',''))
-          ELSE lower(regexp_replace(replace(replace(replace(CONCAT(a.hostname,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$',''))
+          ELSE lower(regexp_replace(replace(replace(replace(CONCAT(b.domain,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$',''))
           END as url_untrimmed,
         CASE WHEN regexp_contains(landing_page_path,domain) 
           THEN trim(lower(regexp_replace(replace(replace(replace(landing_page_path,'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/')
-          ELSE trim(lower(regexp_replace(replace(replace(replace(CONCAT(a.hostname,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/')
+          ELSE trim(lower(regexp_replace(replace(replace(replace(CONCAT(b.domain,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/')
           END as url_trimmed,          
         sum(sessions) sessions,
         sum(transaction_revenue) transaction_revenue,
@@ -84,5 +84,5 @@ FROM (
         GROUP BY b.site, domain, account, month, unix_date, date_of_entry, url_untrimmed, url_trimmed
     )
 )
-WHERE domain = url_domain
+where domain is not null
 GROUP BY site, domain, account, date, unix_date, date_of_entry, url
