@@ -1,12 +1,12 @@
 SELECT 
 b.site, 
-b.domain,
+a.domain,
 a.account,
 date,
 unix_date,
 date_of_entry,
 url_untrimmed,
-first_value(url_untrimmed) over (PARTITION BY site, domain, account, date, url_trimmed ORDER BY impressions desc) url,
+first_value(url_untrimmed) over (PARTITION BY site, a.domain, account, date, url_trimmed ORDER BY impressions desc) url,
 keyword,
 CASE WHEN regexp_contains(keyword, lower(site)) = TRUE THEN 1 ELSE 0 END as branded_flag,
 impressions,
@@ -26,7 +26,7 @@ FROM (
 	account,
 	lower(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\#.*$','')) url_untrimmed,
 	trim(lower(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/') url_trimmed,
-	regexp_extract(landing_page,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as url_domain,
+	regexp_extract(landing_page,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as domain,
 	keyword,
 	impressions,
 	clicks,
@@ -51,6 +51,5 @@ FROM (
 	) a
 LEFT JOIN {{ ref('domains_proc') }} b
 ON (
-	a.url_domain = b.domain
+	a.account = b.search_console_account
 )
-WHERE a.url_domain = b.domain

@@ -1,12 +1,12 @@
 SELECT
 b.site, 
-b.domain,
+a.domain,
 a.account,
 date,
 unix_date,
 date_of_entry,
 url_untrimmed,
-first_value(url_untrimmed) over (PARTITION BY site, domain, account, date, url_trimmed ORDER BY impressions desc) url,
+first_value(url_untrimmed) over (PARTITION BY site, a.domain, account, date, url_trimmed ORDER BY impressions desc) url,
 impressions,
 clicks,
 average_position
@@ -21,7 +21,7 @@ FROM (
 	requested_object as account,
 	lower(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\#.*$','')) url_untrimmed,
 	trim(lower(regexp_replace(replace(replace(replace(landing_page,'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/') url_trimmed,
-	regexp_extract(landing_page,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as url_domain,
+	regexp_extract(landing_page,r'^(?:https?:\/\/)?(?:www\.)?([^\/]+)') as domain,
 	impressions,
 	clicks,
 	average_position
@@ -30,8 +30,8 @@ FROM (
 	) a
 LEFT JOIN {{ ref('domains_proc') }} b
 ON (
-	a.url_domain = b.domain
+	a.account = b.search_console_account
 )
 WHERE time_of_entry = lv
-AND a.url_domain = b.domain
+
 

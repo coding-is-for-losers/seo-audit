@@ -140,7 +140,7 @@ internal_links_out_count_diff,
 top_3_keywords_diff,
 top_10_keywords_diff
 FROM {{ ref('actions_diffs') }}
-WHERE content_action not like 'Rising%' and content_action not like 'Below%'
+WHERE content_trajectory not like 'Rising%' and content_action not like 'Below%'
 AND content_action_diff not in ('None','')
 AND content_action_diff is not null
 

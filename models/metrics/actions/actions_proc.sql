@@ -255,8 +255,11 @@ CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'c
 	ELSE '' END as cannibalization_action,
 
 CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' THEN '' 
-	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d > 0.1 THEN 'Rising content'
-	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d < -0.1 THEN 'failing_content'
+	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d > (total_organic_sessions_mom_pct*1.25) THEN 'Rising content'
+	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d < (total_organic_sessions_mom_pct*0.75) THEN 'Falling content'
+	ELSE '' END as content_trajectory,
+		
+CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' THEN ''
 	WHEN http_status_code = 200 AND sessions_30d < 5 and transactions_30d = 0 and goal_completions_all_goals_30d = 0 and backlink_count > 0 THEN 'Potential 301: low traffic, has external links'
 	WHEN http_status_code = 200 AND sessions_30d < 5 and transactions_30d = 0 and goal_completions_all_goals_30d = 0 and backlink_count = 0  THEN 'Potential removal: low traffic, 0 conversions or backlinks'
 	WHEN http_status_code = 200 AND page_type = 'lead generation' and transactions_30d = 0 and goal_completions_all_goals_30d = 0 

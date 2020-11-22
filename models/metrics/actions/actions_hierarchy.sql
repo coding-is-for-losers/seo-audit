@@ -68,6 +68,7 @@ concat(
 	CASE WHEN cannibalization_action = '' THEN '' ELSE concat("cannibalization_action: ", cannibalization_action) END ) architecture_action,
 # analytics actions are separate from indicative actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 cannibalization_action,
+content_trajectory,
 content_action,
 case when http_status_code = 200 then internal_link_action else '' end as internal_link_action,
 case when http_status_code = 200 then external_link_action else '' end as external_link_action,
