@@ -10,7 +10,7 @@ found_at_url,
 canonical_url,
 canonical_status,
 page_type,
-CASE WHEN sessions_30d = sessions_ttm AND sessions_30d > 0 THEN 1
+CASE WHEN sessions_30d = sessions_ttm AND sessions_30d > 0 and http_status_code=200 THEN 1
 	ELSE 0 END as new_content_flag,
 CASE 
 	WHEN lower(http_status_action) like '%redirect%' THEN 'High'
@@ -68,6 +68,7 @@ concat(
 	CASE WHEN cannibalization_action = '' THEN '' ELSE concat("cannibalization_action: ", cannibalization_action) END ) architecture_action,
 # analytics actions are separate from indicative actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 cannibalization_action,
+content_trajectory,
 content_action,
 case when http_status_code = 200 then internal_link_action else '' end as internal_link_action,
 case when http_status_code = 200 then external_link_action else '' end as external_link_action,
@@ -116,7 +117,7 @@ goal_completions_all_goals_30d,
 pct_of_organic_goal_completions_all_goals_30d,
 goal_conversion_rate_all_goals_30d,
 med_goal_conversion_rate_30d,
-blended_conversions_30d,
+blended_conversions_30d,	
 blended_conversion_rate_30d,
 bounce_rate_30d,
 avg_seconds_on_site_30d,

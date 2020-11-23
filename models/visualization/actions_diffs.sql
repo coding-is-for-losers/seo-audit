@@ -82,6 +82,7 @@ CASE WHEN cannibalization_action_prev != '' and cannibalization_action = '' THEN
 	WHEN cannibalization_action_prev != '' and cannibalization_action != '' and cannibalization_action_prev != cannibalization_action THEN 'Changed' 
 	WHEN cannibalization_action_prev = cannibalization_action and cannibalization_action != '' THEN 'Recurring' 
 	ELSE 'None' END as cannibalization_action_diff,	
+content_trajectory,
 content_action,
 content_action_prev,
 CASE WHEN content_action_prev != '' and content_action = '' THEN 'Fixed'
@@ -325,6 +326,7 @@ FROM (
 	# analytics actions are separate from indicative actions - only display if admin_action in ('', 'add to sitemap', 'missing from crawl')
 	cannibalization_action,
 	lag(cannibalization_action) over w1 as cannibalization_action_prev,
+	content_trajectory,
 	content_action,
 	lag(content_action) over w1 as content_action_prev,
 	internal_link_action,
@@ -419,8 +421,6 @@ FROM (
 	-- pct_of_organic_goal_completions_all_goals_30d,
 	-- goal_conversion_rate_all_goals_30d,
 	-- med_goal_conversion_rate_30d,
-	-- blended_conversions_30d,
-	-- blended_conversion_rate_30d,
 	-- bounce_rate_30d,
 	-- avg_seconds_on_site_30d,
 	-- sessions_mom,

@@ -34,18 +34,18 @@ FROM (
 
         SELECT
         b.site, 
-        b.domain,
+        a.domain,
         account,
         month date,
         unix_date,
         date_of_entry,
-        CASE WHEN regexp_contains(landing_page_path,domain) 
+        CASE WHEN regexp_contains(landing_page_path,a.domain) 
           THEN lower(regexp_replace(replace(replace(replace(landing_page_path,'www.',''),'http://',''),'https://',''),r'\#.*$',''))
-          ELSE lower(regexp_replace(replace(replace(replace(CONCAT(a.hostname,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$',''))
+          ELSE lower(regexp_replace(replace(replace(replace(CONCAT(a.domain,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$',''))
           END as url_untrimmed,
-        CASE WHEN regexp_contains(landing_page_path,domain) 
+        CASE WHEN regexp_contains(landing_page_path,a.domain) 
           THEN trim(lower(regexp_replace(replace(replace(replace(landing_page_path,'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/')
-          ELSE trim(lower(regexp_replace(replace(replace(replace(CONCAT(a.hostname,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/')
+          ELSE trim(lower(regexp_replace(replace(replace(replace(CONCAT(a.domain,landing_page_path),'www.',''),'http://',''),'https://',''),r'\#.*$','')),'/')
           END as url_trimmed,          
         sum(sessions) sessions,
         sum(transaction_revenue) transaction_revenue,
@@ -61,8 +61,8 @@ FROM (
                 time_of_entry,
                 cast(time_of_entry as date) date_of_entry,
                 first_value(time_of_entry) OVER (PARTITION BY view, landing_page_path, hostname, month ORDER BY time_of_entry desc) lv,
-                replace(hostname,'www.','') hostname,
-                trim(replace(hostname,'www.',''),'/') hostname_trimmed,
+                replace(hostname,'www.','') domain,
+                trim(replace(hostname,'www.',''),'/') domain_trimmed,
                 landing_page_path,
                 cast(sessions as int64) sessions,
                 cast(transaction_revenue as int64) transaction_revenue,
@@ -78,11 +78,11 @@ FROM (
                 ) a
         LEFT JOIN {{ ref('domains_proc') }} b
         ON (
-            a.hostname_trimmed = b.domain
+            a.account = b.google_analytics_account
         )
         WHERE time_of_entry = lv
-        GROUP BY b.site, domain, account, month, unix_date, date_of_entry, url_untrimmed, url_trimmed
+        GROUP BY b.site, a.domain, account, month, unix_date, date_of_entry, url_untrimmed, url_trimmed
     )
 )
-WHERE domain = url_domain
+
 GROUP BY site, domain, account, date, unix_date, date_of_entry, url
