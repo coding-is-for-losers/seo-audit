@@ -64,7 +64,6 @@ ifnull(max(goal_conversion_rate_all_goals_30d), 0) goal_conversion_rate_all_goal
 ifnull(CASE WHEN max(total_organic_sessions_30d) > 0 THEN max(total_organic_goal_completions_all_goals_30d) / max(total_organic_sessions_30d) ELSE null END, 0) as total_organic_goal_conversion_rate_30d,
 ifnull(max(blended_conversions_30d), 0) blended_conversions_30d,	
 ifnull(max(blended_conversion_rate_30d), 0) blended_conversion_rate_30d,	
-ifnull(max(med_goal_conversion_rate_30d), 0) med_goal_conversion_rate_30d,	
 ifnull(max(bottom_quartile_blended_conversions_30d), 0) bottom_quartile_blended_conversions_30d,	
 ifnull(max(med_blended_conversions_30d), 0) med_blended_conversions_30d,	
 ifnull(max(top_quartile_blended_conversions_30d), 0) top_quartile_blended_conversions_30d,	
