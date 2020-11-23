@@ -52,8 +52,7 @@ FROM (
 	url,
 	pct_of_organic_sessions_30d
 	FROM {{ ref('actions_hierarchy') }}
-	WHERE content_action != '' AND content_action is not null	
-	AND content_trajectory not like 'rising%'
+	WHERE content_action != '' 
 
 	UNION ALL
 

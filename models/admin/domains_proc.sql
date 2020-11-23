@@ -11,7 +11,7 @@ FROM (
 	google_search_console_account search_console_account,
 	google_analytics_account,
 	time_of_entry,
-	first_value(time_of_entry) OVER (PARTITION BY site_name,google_analytics_account,google_search_console_account ORDER BY time_of_entry DESC) lv
+	first_value(time_of_entry) OVER (PARTITION BY site_name ORDER BY time_of_entry DESC) lv
 	FROM `{{ target.project }}.{{ target.schema }}.sites`
 	WHERE site_name is not null
 )

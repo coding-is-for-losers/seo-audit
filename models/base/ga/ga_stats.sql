@@ -64,6 +64,10 @@ sum(goal_completions_all_goals_ttm) as goal_completions_all_goals_ttm,
 max(goal_conversion_rate_all_goals_ttm) as goal_conversion_rate_all_goals_ttm,
 max(bounce_rate_ttm) bounce_rate_ttm,
 max(avg_seconds_on_site_ttm) as avg_seconds_on_site_ttm,
+CASE WHEN sum(transactions_30d) > 0 THEN sum(transactions_30d)
+		ELSE sum(goal_completions_all_goals_30d) END as blended_conversions_30d,
+CASE WHEN max(ecommerce_conversion_rate_30d) > 0 THEN max(ecommerce_conversion_rate_30d)
+	ELSE max(goal_conversion_rate_all_goals_30d) END as blended_conversion_rate_30d
 FROM (
 
 	SELECT
