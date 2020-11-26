@@ -83,6 +83,7 @@ CASE WHEN cannibalization_action_prev != '' and cannibalization_action = '' THEN
 	WHEN cannibalization_action_prev = cannibalization_action and cannibalization_action != '' THEN 'Recurring' 
 	ELSE 'None' END as cannibalization_action_diff,	
 content_trajectory,
+content_trajectory_first,
 content_action,
 content_action_prev,
 CASE WHEN content_action_prev != '' and content_action = '' THEN 'Fixed'
@@ -327,6 +328,7 @@ FROM (
 	cannibalization_action,
 	lag(cannibalization_action) over w1 as cannibalization_action_prev,
 	content_trajectory,
+	first_value(content_trajectory) over w1 as content_trajectory_first,
 	content_action,
 	lag(content_action) over w1 as content_action_prev,
 	internal_link_action,
