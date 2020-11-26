@@ -328,7 +328,7 @@ FROM (
 	cannibalization_action,
 	lag(cannibalization_action) over w1 as cannibalization_action_prev,
 	content_trajectory,
-	first_value(content_trajectory) over w1 as content_trajectory_first,
+	first_value(content_trajectory ignore nulls) over w1 as content_trajectory_first,
 	content_action,
 	lag(content_action) over w1 as content_action_prev,
 	internal_link_action,
