@@ -107,7 +107,7 @@ FROM (
     crawl_date,
     crawl_month,
     crawl_report_month,
-    max(found_at_sitemap) over w1 as found_at_sitemap,
+    STRING_AGG (found_at_sitemap) over w1 as found_at_sitemap,
     is_in_sitemap,
     sitemap_canonicalization_score,
     max(sitemap_canonicalization_score) over w1 as max_sitemap_canonicalization_score,
