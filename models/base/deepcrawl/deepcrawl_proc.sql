@@ -107,7 +107,7 @@ FROM (
     crawl_date,
     crawl_month,
     crawl_report_month,
-    found_at_sitemap,
+    STRING_AGG (found_at_sitemap) over w1 as found_at_sitemap,
     is_in_sitemap,
     sitemap_canonicalization_score,
     max(sitemap_canonicalization_score) over w1 as max_sitemap_canonicalization_score,
@@ -128,7 +128,7 @@ FROM (
     backlink_domain_count,
     redirected_to_url,
     self_redirect,
-    found_at_url,
+    max(found_at_url) over w1 as found_at_url,
     rel_next_url,
     rel_prev_url,
     links_in_count,
@@ -340,13 +340,13 @@ FROM (
       a.domain = b.domain
     )
     
-    WHERE self_redirect = 0 
-    AND non_html_url = false
+    WHERE non_html_url = false
     WINDOW w1 as (PARTITION BY a.domain, crawl_report_month, url ),
     w2 as (PARTITION BY a.domain, crawl_id, canonical_url)
   )
   WHERE max_trailing_slash_match = url_canonical_trailing_slash_match
   AND sitemap_canonicalization_score = max_sitemap_canonicalization_score
+  AND self_redirect = 0
   WINDOW w3 as (PARTITION BY domain, crawl_report_month, url),
   w4 as (PARTITION BY domain, crawl_report_month, url ORDER BY found_at_sitemap desc, is_canonicalized desc, crawl_datetime desc, eventid desc )
 

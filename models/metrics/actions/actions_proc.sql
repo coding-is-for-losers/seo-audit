@@ -182,9 +182,8 @@ with agg_all as (
 	best_top_url_clicks,
 	best_keyword_cannibalization_flag
 	FROM {{ ref('agg_all') }}
-	WINDOW mom as (PARTITION BY site,domain,url ORDER BY date asc)
-
-
+	WHERE found_at is not null
+	WINDOW mom as (PARTITION BY site,domain,url ORDER BY date asc)	
 )
 
 
@@ -257,8 +256,10 @@ CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'c
 	ELSE '' END as cannibalization_action,
 
 CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' THEN '' 
-	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d > (total_organic_sessions_mom_pct*1.25) THEN 'Rising content'
-	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d < (total_organic_sessions_mom_pct*0.75) THEN 'Falling content'
+	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d > 0 AND total_organic_sessions_mom_pct > 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d > (total_organic_sessions_mom_pct*1.25) THEN 'Rising content'
+	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d > 0 AND total_organic_sessions_mom_pct < 0 THEN 'Rising content'
+	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d < 0 AND total_organic_sessions_mom_pct < 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d < (total_organic_sessions_mom_pct*1.25) THEN 'Falling content'
+	WHEN http_status_code = 200 AND sessions_30d != 0 AND sessions_30d_mom != 0 AND (sessions_30d - sessions_30d_mom)/sessions_30d < 0 AND total_organic_sessions_mom_pct > 0 THEN 'Falling content'
 	ELSE '' END as content_trajectory,
 		
 CASE WHEN http_status_code != 200 OR flag_paginated = 1 OR canonical_status = 'canonicalized' THEN ''
