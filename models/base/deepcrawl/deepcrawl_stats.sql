@@ -197,4 +197,4 @@ ON (
 	a.crawl_id = b.crawl_id AND
 	a.site = b.site
 )
-WHERE found_at_url is not null and found_at_sitemap is not null
+WHERE (found_at_url is not null OR found_at_sitemap is not null)
